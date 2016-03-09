@@ -1,0 +1,31 @@
+{
+  "databaseInfoList": [
+    {
+      "dialect": "mysql",
+      "ip": "192.168.5.233",
+      "port": 3306,
+      "schema": "gfb-usercenter",
+      "userName": "root",
+      "password": "123456"
+    },
+    {
+      "dialect": "mysql",
+      "ip": "121.43.177.8",
+      "port": 3344,
+      "schema": "gfb-usercenter",
+      "userName": "gongfubao",
+      "password": "dashugongfubao"
+    }
+  ],
+  "tableList": [
+    {
+      "name": "t_user",
+      "columns": "Surname,Mobile",
+      "where": "1=1"
+    },
+    {
+      "name": "t_user_login_history"
+    }
+  ],
+  "rangeAllocator": "table_sequence"
+}

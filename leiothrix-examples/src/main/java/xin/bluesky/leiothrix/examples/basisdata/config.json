@@ -1,0 +1,12 @@
+{
+  "databaseInfoList": [
+    {
+      "dialect": "mysql",
+      "ip": "192.168.5.232",
+      "port": 3306,
+      "schema": "basisdata",
+      "userName": "root",
+      "password": "dashu0701"
+    }
+  ]
+}

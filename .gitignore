@@ -1,0 +1,24 @@
+# idea project files and folder #
+*.iml
+*.ipr
+*.iws
+.idea/
+/out/
+logs/
+test/zkdata/
+
+
+.DS_Store
+
+*.class
+*.war
+*.jar
+
+# Maven
+target/
+**/target/
+**/.settings/
+**/*.project
+**/*.classpath
+dependency-reduced-pom.xml
+LOG_FILE_IS_UNDEFINED
