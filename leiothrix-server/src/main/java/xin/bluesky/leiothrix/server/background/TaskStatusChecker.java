@@ -22,7 +22,6 @@ import static xin.bluesky.leiothrix.server.bean.status.TableStatus.FINISHED;
 
 /**
  * @author 张轲
- * @date 16/1/26
  */
 public class TaskStatusChecker implements Runnable {
 

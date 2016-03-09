@@ -20,7 +20,6 @@ import java.util.List;
 
 /**
  * @author 张轲
- * @date 16/2/19
  */
 public class BaseIntegrationTest {
 

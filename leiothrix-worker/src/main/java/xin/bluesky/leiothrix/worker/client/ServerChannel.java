@@ -30,7 +30,6 @@ import static xin.bluesky.leiothrix.worker.client.ChannelStatus.NORMAL;
 
 /**
  * @author 张轲
- * @date 16/1/25
  */
 public class ServerChannel {
 

@@ -19,7 +19,6 @@ import java.util.List;
  * </p>
  *
  * @author 张轲
- * @date 16/1/29
  */
 public interface DatabasePageDataHandler {
 

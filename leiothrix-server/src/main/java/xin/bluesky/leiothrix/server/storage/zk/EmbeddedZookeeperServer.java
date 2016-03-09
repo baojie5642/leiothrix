@@ -15,7 +15,6 @@ import static xin.bluesky.leiothrix.server.storage.zk.ZookeeperUtils.delete;
 
 /**
  * @author 张轲
- * @date 16/2/3
  */
 public class EmbeddedZookeeperServer {
 

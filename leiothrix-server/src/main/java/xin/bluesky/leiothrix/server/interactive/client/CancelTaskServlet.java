@@ -23,7 +23,6 @@ import static xin.bluesky.leiothrix.model.msg.ServerMessageType.CANCEL_TASK;
 
 /**
  * @author 张轲
- * @date 16/1/28
  */
 public class CancelTaskServlet extends HttpServlet {
 

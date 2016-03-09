@@ -26,7 +26,6 @@ import static xin.bluesky.leiothrix.server.Constant.SYS_PROP_WORKER_COMPENSATE_E
  * </p>
  *
  * @author 张轲
- * @date 16/2/16
  */
 public class TaskCompensatorJob implements Runnable {
 

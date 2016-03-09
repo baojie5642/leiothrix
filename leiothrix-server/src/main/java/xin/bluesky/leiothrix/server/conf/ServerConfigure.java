@@ -13,7 +13,6 @@ import static xin.bluesky.leiothrix.server.Constant.SYS_PROP_CONFIG_FILE;
 
 /**
  * @author 张轲
- * @date 16/1/19
  */
 public class ServerConfigure {
 

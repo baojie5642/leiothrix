@@ -8,7 +8,6 @@ import xin.bluesky.leiothrix.common.net.NioServer;
 
 /**
  * @author 张轲
- * @date 16/2/16
  */
 // 需要观察日志来判定,且该类基本不会变动,所以ignore.如需测试,手动打开并观察日志来验证
 @Ignore

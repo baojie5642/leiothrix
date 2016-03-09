@@ -5,7 +5,6 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 /**
  * @author 张轲
- * @date 16/1/28
  */
 public class UrlMapping {
 

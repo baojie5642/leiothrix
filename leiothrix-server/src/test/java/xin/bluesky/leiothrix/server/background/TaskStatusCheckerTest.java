@@ -17,7 +17,6 @@ import static org.hamcrest.core.Is.is;
 
 /**
  * @author 张轲
- * @date 16/2/29
  */
 public class TaskStatusCheckerTest extends StorageContainerDependency {
 

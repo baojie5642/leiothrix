@@ -2,7 +2,7 @@ package xin.bluesky.leiothrix.server.action.exception;
 
 /**
  * @author 张轲
- * @date 16/1/24
+ * worker.processor.threadnum.factor
  */
 public class NoTaskException extends Exception {
     public NoTaskException() {

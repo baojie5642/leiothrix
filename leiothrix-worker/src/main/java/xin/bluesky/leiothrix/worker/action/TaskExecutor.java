@@ -29,7 +29,6 @@ import static xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper.ST
 
 /**
  * @author 张轲
- * @date 16/1/22
  */
 public class TaskExecutor implements Runnable {
 

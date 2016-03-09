@@ -20,7 +20,6 @@ import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 
 /**
  * @author 张轲
- * @date 16/1/27
  */
 public class SubmitTaskBin {
 

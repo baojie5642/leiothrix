@@ -15,7 +15,6 @@ import static xin.bluesky.leiothrix.model.msg.ServerMessageType.SERVER_UPDATED;
  * server列表发生变化时,通知所有worker更新.
  *
  * @author 张轲
- * @date 16/2/16
  */
 public class ServerUpdatedTrigger {
 

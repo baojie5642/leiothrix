@@ -19,7 +19,6 @@ import static xin.bluesky.leiothrix.model.task.TaskStatus.PROCESSING;
 
 /**
  * @author 张轲
- * @date 16/1/28
  */
 public class QueryProgressServlet extends HttpServlet {
 

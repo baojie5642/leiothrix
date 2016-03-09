@@ -19,7 +19,6 @@ import static xin.bluesky.leiothrix.server.bean.status.RangeStatus.PROCESSING;
 
 /**
  * @author 张轲
- * @date 16/3/3
  */
 public class TimeoutPartitionTaskCheckerTest extends StorageContainerDependency {
 

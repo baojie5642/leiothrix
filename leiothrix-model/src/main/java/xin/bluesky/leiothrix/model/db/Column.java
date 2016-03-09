@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.model.db;
 
 /**
  * @author 张轲
- * @date 16/1/19
  */
 public class Column {
     private ColumnType type;
@@ -30,10 +29,6 @@ public class Column {
         this.data = data;
     }
 
-    /**
-     * @author 张轲
-     * @date 16/1/19
-     */
     public static enum ColumnType {
         STRING,NUMBER,DATE
     }

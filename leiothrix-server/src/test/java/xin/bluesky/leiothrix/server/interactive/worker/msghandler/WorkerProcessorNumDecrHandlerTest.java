@@ -11,7 +11,6 @@ import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.WORKER_NUM_DECR;
 
 /**
  * @author 张轲
- * @date 16/2/25
  */
 public class WorkerProcessorNumDecrHandlerTest extends StorageContainerDependency {
 

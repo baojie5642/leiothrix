@@ -11,7 +11,6 @@ import static xin.bluesky.leiothrix.server.storage.zk.ZookeeperUtils.makePath;
 
 /**
  * @author 张轲
- * @date 16/2/19
  */
 @Ignore("通过日志来看worker是否收到了server发来的变更消息")
 public class ServerUpdatedTest extends BaseIntegrationTest {

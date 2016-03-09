@@ -19,7 +19,6 @@ import java.util.List;
 
 /**
  * @author 张轲
- * @date 16/1/28
  */
 //todo: 目前只有一个简单实现,即任务是完成了还是未完成,后面需要增加详细的执行情况
 public class QueryProgressBin {

@@ -22,7 +22,6 @@ import static org.hamcrest.Matchers.lessThan;
 
 /**
  * @author 张轲
- * @date 16/2/3
  */
 public class PartitionTaskFinderTest extends StorageContainerDependency {
 

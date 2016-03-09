@@ -33,7 +33,6 @@ import static xin.bluesky.leiothrix.model.bin.SubmitStatus.SUCCESS;
 
 /**
  * @author 张轲
- * @date 16/1/28
  */
 public class SubmitTaskServlet extends HttpServlet {
 

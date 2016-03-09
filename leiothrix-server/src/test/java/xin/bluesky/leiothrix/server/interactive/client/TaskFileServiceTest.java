@@ -15,7 +15,6 @@ import static org.hamcrest.core.Is.is;
 
 /**
  * @author 张轲
- * @date 16/3/7
  */
 @Ignore(value = "会依赖外部可以ssh通的centos,所以忽略")
 public class TaskFileServiceTest extends StorageContainerDependency {

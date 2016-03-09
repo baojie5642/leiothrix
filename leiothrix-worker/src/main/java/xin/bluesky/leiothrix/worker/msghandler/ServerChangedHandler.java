@@ -12,7 +12,6 @@ import java.util.List;
 
 /**
  * @author 张轲
- * @date 16/2/16
  */
 public class ServerChangedHandler implements ServerMessageHandler {
 

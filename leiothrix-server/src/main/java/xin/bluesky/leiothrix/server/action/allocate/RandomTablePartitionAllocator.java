@@ -8,7 +8,7 @@ import java.util.*;
 /**
  * 按照table作为维度,随机分配.但table内部的range按id顺序依次执行
  *
- * <p>eg:假设两个表(table-1,table-2),各自range情况如下:<br/>
+ * <p>eg:假设两个表(table-1,table-2),各自range情况如下:<br></br>
  * <ul>
  * <li>
  * table-1:0-1000,1001-2000两个range
@@ -21,7 +21,6 @@ import java.util.*;
  * </p>
  *
  * @author 张轲
- * @date 16/2/3
  */
 @Deprecated
 public class RandomTablePartitionAllocator extends AbstractPartitionAllocator {

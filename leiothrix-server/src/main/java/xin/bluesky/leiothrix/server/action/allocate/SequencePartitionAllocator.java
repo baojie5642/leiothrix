@@ -29,7 +29,6 @@ import java.util.List;
  * </p>
  *
  * @author 张轲
- * @date 16/2/3
  */
 public class SequencePartitionAllocator extends AbstractPartitionAllocator {
 

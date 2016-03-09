@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.model.task;
 
 /**
  * @author 张轲
- * @date 16/3/8
  */
 public class TableQueryDefinition {
 

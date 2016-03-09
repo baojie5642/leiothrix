@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.server.storage.zk;
 
 /**
  * @author 张轲
- * @date 16/1/20
  */
 public class ZookeeperException extends RuntimeException {
     public ZookeeperException() {

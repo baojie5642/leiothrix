@@ -7,7 +7,6 @@ import java.util.Date;
  * 日期工具类
  *
  * @author 张轲
- * @date 16/1/30
  */
 public class DateUtils2 {
 

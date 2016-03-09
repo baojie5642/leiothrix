@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * @author 张轲
- * @date 16/2/17
  */
 public class WorkerManager {
     private static final Logger logger = LoggerFactory.getLogger(WorkerManager.class);

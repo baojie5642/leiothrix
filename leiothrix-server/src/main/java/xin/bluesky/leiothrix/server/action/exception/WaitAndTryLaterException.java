@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.server.action.exception;
 
 /**
  * @author 张轲
- * @date 16/2/4
  */
 public class WaitAndTryLaterException extends Exception {
     public WaitAndTryLaterException() {

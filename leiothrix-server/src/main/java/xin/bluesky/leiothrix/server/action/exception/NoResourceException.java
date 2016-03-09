@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.server.action.exception;
 
 /**
  * @author 张轲
- * @date 16/2/17
  */
 public class NoResourceException extends Exception{
     public NoResourceException() {

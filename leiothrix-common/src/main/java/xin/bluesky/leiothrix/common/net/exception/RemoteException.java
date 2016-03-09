@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.common.net.exception;
 
 /**
  * @author 张轲
- * @date 16/1/25
  */
 public class RemoteException extends RuntimeException {
     public RemoteException() {

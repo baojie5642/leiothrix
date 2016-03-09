@@ -17,7 +17,6 @@ import static com.google.common.collect.FluentIterable.from;
 
 /**
  * @author 张轲
- * @date 16/1/21
  */
 public class ZookeeperUtils {
 

@@ -5,7 +5,6 @@ import xin.bluesky.leiothrix.server.bean.task.TaskRanges;
 
 /**
  * @author 张轲
- * @date 16/3/3
  */
 public class TaskRangesCache {
 

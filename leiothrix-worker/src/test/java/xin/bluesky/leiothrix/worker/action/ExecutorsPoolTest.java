@@ -8,7 +8,6 @@ import static org.hamcrest.Matchers.greaterThan;
 
 /**
  * @author 张轲
- * @date 16/3/1
  */
 public class ExecutorsPoolTest {
 

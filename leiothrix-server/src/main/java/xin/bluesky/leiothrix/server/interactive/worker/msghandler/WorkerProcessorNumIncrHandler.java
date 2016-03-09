@@ -12,7 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author 张轲
- * @date 16/2/16
  */
 public class WorkerProcessorNumIncrHandler implements WorkerMessageHandler {
 

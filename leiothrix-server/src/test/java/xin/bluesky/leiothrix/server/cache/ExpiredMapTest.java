@@ -9,7 +9,6 @@ import static org.hamcrest.core.Is.is;
 
 /**
  * @author 张轲
- * @date 16/3/3
  */
 public class ExpiredMapTest {
 

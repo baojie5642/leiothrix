@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author 张轲
- * @date 16/1/19
  */
 public class JdbcTemplate {
 

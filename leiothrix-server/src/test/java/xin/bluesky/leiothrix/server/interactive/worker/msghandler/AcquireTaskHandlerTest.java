@@ -20,7 +20,6 @@ import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.ACQUIRE_TASK;
 
 /**
  * @author 张轲
- * @date 16/3/2
  */
 public class AcquireTaskHandlerTest extends StorageContainerDependency {
 

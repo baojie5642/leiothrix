@@ -11,7 +11,6 @@ import java.util.concurrent.*;
 
 /**
  * @author 张轲
- * @date 16/3/1
  */
 public class PartitionTaskContainer {
 

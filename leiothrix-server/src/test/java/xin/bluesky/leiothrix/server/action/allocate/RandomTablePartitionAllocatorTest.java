@@ -15,7 +15,6 @@ import java.util.*;
 
 /**
  * @author 张轲
- * @date 16/2/26
  */
 @Ignore(value = "类并不支持,测试暂且忽略")
 public class RandomTablePartitionAllocatorTest extends StorageContainerDependency {

@@ -14,7 +14,6 @@ import static xin.bluesky.leiothrix.common.net.NetUtils.pingSuccess;
 
 /**
  * @author 张轲
- * @date 16/1/26
  */
 public class WorkerHealthChecker implements Runnable {
 

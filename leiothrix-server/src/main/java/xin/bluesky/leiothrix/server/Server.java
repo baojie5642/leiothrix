@@ -29,7 +29,6 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
  * server.
  *
  * @author 张轲
- * @date 16/1/19
  */
 public class Server {
 

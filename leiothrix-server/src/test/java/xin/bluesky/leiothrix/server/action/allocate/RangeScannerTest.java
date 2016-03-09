@@ -16,7 +16,6 @@ import static xin.bluesky.leiothrix.server.bean.status.RangeStatus.*;
 
 /**
  * @author 张轲
- * @date 16/3/1
  */
 public class RangeScannerTest extends StorageContainerDependency {
 

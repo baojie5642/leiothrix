@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
  * 如果当前时间离对象放入时间超过了阀值,则会被从map中移除掉.
  *
  * @author 张轲
- * @date 16/3/3
  */
 //todo: 最好要限制这个cache的大小,至少是元素数量
 public class ExpiredMap<K, V> {

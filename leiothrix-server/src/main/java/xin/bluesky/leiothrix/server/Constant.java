@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.server;
 
 /**
  * @author 张轲
- * @date 16/2/17
  */
 public class Constant {
     public final static String RANGE_SEPARATOR = "-";

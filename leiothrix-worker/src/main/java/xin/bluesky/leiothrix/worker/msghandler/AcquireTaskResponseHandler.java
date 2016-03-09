@@ -12,7 +12,7 @@ import static xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper.*;
 
 /**
  * @author 张轲
- * @date 16/1/24
+ * worker.processor.threadnum.factor
  */
 public class AcquireTaskResponseHandler implements ServerMessageHandler {
 

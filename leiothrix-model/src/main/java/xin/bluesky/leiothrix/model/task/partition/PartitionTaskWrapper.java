@@ -5,7 +5,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * @author 张轲
- * @date 16/2/4
  */
 public class PartitionTaskWrapper {
     public static final String STATUS_SUCCESS = "success";

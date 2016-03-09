@@ -15,7 +15,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author 张轲
- * @date 16/3/7
  */
 public class TaskDeleteJob implements Runnable {
 

@@ -10,7 +10,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 /**
  * @author 张轲
- * @date 16/2/3
  */
 public class DateUtils2Test {
 

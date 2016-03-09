@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.model.task;
 
 /**
  * @author 张轲
- * @date 16/2/15
  */
 public class TaskProgress {
 

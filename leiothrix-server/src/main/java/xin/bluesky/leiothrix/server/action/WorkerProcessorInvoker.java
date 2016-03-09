@@ -18,7 +18,6 @@ import static xin.bluesky.leiothrix.common.util.StringUtils2.COMMA;
 
 /**
  * @author 张轲
- * @date 16/2/17
  */
 public class WorkerProcessorInvoker {
 

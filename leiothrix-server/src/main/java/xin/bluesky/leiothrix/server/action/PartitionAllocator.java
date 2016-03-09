@@ -10,7 +10,6 @@ import java.util.List;
  * 片划分的抽象接口.
  *
  * @author 张轲
- * @date 16/2/3
  */
 public interface PartitionAllocator {
 

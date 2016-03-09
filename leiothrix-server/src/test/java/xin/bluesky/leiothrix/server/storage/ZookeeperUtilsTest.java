@@ -17,7 +17,6 @@ import static org.hamcrest.Matchers.is;
 
 /**
  * @author 张轲
- * @date 16/2/17
  */
 public class ZookeeperUtilsTest {
 

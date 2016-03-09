@@ -14,7 +14,6 @@ import static org.junit.Assert.assertThat;
 
 /**
  * @author 张轲
- * @date 16/2/3
  */
 public class CollectionsUtils2Test {
 

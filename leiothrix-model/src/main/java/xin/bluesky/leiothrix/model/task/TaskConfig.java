@@ -10,7 +10,7 @@ import static org.apache.commons.lang3.builder.ToStringStyle.JSON_STYLE;
 
 /**
  * @author 张轲
- * @date 16/1/23
+ *
  */
 public class TaskConfig {
 

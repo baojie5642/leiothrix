@@ -20,7 +20,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * @author 张轲
- * @date 16/1/19
  */
 public abstract class DatabaseSchemaLoader {
 

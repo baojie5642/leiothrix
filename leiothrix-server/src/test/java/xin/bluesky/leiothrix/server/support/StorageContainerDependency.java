@@ -6,7 +6,6 @@ import xin.bluesky.leiothrix.server.storage.zk.EmbeddedZookeeperServer;
 
 /**
  * @author 张轲
- * @date 16/2/18
  */
 public class StorageContainerDependency {
 

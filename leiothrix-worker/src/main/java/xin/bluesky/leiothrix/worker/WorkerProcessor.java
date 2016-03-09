@@ -27,7 +27,6 @@ import static xin.bluesky.leiothrix.worker.WorkerProcessor.Status.*;
 
 /**
  * @author 张轲
- * @date 16/1/22
  */
 public class WorkerProcessor {
 

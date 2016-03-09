@@ -6,7 +6,6 @@ import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 
 /**
  * @author 张轲
- * @date 16/2/24
  */
 public class PingHandler implements WorkerMessageHandler {
 

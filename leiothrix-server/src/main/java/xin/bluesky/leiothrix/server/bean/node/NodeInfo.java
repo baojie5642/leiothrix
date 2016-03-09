@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.server.bean.node;
 
 /**
  * @author 张轲
- * @date 16/2/16
  */
 public class NodeInfo {
 

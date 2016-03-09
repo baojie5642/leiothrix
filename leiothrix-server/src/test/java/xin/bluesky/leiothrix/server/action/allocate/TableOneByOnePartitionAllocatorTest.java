@@ -20,7 +20,6 @@ import static org.hamcrest.core.Is.is;
 
 /**
  * @author 张轲
- * @date 16/2/5
  */
 public class TableOneByOnePartitionAllocatorTest extends StorageContainerDependency {
 

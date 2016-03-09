@@ -10,7 +10,6 @@ import xin.bluesky.leiothrix.server.storage.TaskStorage;
 
 /**
  * @author 张轲
- * @date 16/3/2
  */
 public class FinishedComponentCache {
 

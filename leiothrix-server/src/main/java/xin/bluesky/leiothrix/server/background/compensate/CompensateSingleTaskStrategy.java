@@ -13,7 +13,6 @@ import xin.bluesky.leiothrix.server.storage.TaskStorage;
  * 补偿单个任务的策略.将空闲资源首先分配给未被执行的任务,如不存在则分配给最老的任务
  *
  * @author 张轲
- * @date 16/2/17
  */
 public class CompensateSingleTaskStrategy implements CompensateStrategy {
 

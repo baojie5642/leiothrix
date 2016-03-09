@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 
 /**
  * @author 张轲
- * @date 16/1/24
+ * worker.processor.threadnum.factor
  */
 public interface ServerMessageHandler {
 

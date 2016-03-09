@@ -10,7 +10,6 @@ import java.net.SocketAddress;
 
 /**
  * @author 张轲
- * @date 16/3/2
  */
 public class MockChannelHandlerContext implements ChannelHandlerContext {
     private String writeContent;

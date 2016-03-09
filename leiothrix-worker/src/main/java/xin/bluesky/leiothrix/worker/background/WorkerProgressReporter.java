@@ -20,7 +20,6 @@ import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.WORKER_PROGRESS_
 
 /**
  * @author 张轲
- * @date 16/1/26
  */
 public class WorkerProgressReporter implements Runnable {
 

@@ -16,7 +16,6 @@ import static xin.bluesky.leiothrix.server.storage.zk.ZookeeperUtils.*;
 
 /**
  * @author 张轲
- * @date 16/2/17
  */
 public class TableStorage {
     public static final String NAME_META = "meta";

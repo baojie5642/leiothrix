@@ -19,7 +19,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * @author 张轲
- * @date 16/3/3
  */
 public class TimeoutPartitionTaskChecker implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(TimeoutPartitionTaskChecker.class);

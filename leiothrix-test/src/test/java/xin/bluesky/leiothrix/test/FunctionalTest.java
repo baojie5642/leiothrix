@@ -15,7 +15,6 @@ import java.util.UUID;
 
 /**
  * @author 张轲
- * @date 16/2/23
  */
 public class FunctionalTest extends BaseIntegrationTest {
 

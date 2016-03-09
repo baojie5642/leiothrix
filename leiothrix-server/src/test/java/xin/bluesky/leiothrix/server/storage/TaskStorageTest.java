@@ -16,7 +16,6 @@ import static xin.bluesky.leiothrix.server.storage.zk.ZookeeperUtils.makePath;
 
 /**
  * @author 张轲
- * @date 16/2/23
  */
 public class TaskStorageTest extends StorageContainerDependency {
 

@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.server.action.exception;
 
 /**
  * @author 张轲
- * @date 16/1/30
  */
 public class FindTaskException extends RuntimeException {
     public FindTaskException() {

@@ -15,7 +15,7 @@ import java.util.Random;
 
 /**
  * @author 张轲
- * @date 16/1/24
+ * worker.processor.threadnum.factor
  */
 //todo: 关于这一次find出来的结果,都是一张表的这种做法,应该抽象出成个具体实现.因为并没有道理要求这样做.
 public class PartitionTaskFinder {

@@ -17,7 +17,6 @@ import java.util.List;
 
 /**
  * @author 张轲
- * @date 16/2/15
  */
 public abstract class AbstractPartitionAllocator implements PartitionAllocator {
 

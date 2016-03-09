@@ -13,7 +13,7 @@ import static xin.bluesky.leiothrix.server.bean.status.RangeStatus.FINISHED;
 
 /**
  * @author 张轲
- * @date 16/1/24
+ * worker.processor.threadnum.factor
  */
 public class FinishedPartitionTaskHandler implements WorkerMessageHandler {
 

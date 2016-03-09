@@ -14,7 +14,7 @@ import static java.math.BigDecimal.ROUND_HALF_DOWN;
 
 /**
  * @author 张轲
- * @date 16/1/24
+ * worker.processor.threadnum.factor
  */
 public class ExecutorsPool {
 

@@ -16,7 +16,6 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * @author 张轲
- * @date 16/2/24
  */
 public class RangeSplitter implements Runnable {
 

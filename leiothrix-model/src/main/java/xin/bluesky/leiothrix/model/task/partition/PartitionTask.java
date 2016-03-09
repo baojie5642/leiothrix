@@ -7,7 +7,6 @@ import xin.bluesky.leiothrix.model.db.DatabaseInfo;
 
 /**
  * @author 张轲
- * @date 16/1/22
  */
 public class PartitionTask {
 

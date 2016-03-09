@@ -2,7 +2,7 @@ package xin.bluesky.leiothrix.common.jdbc;
 
 /**
  * @author 张轲
- * @date 16/1/23
+ *
  */
 public class JdbcException extends RuntimeException {
 

@@ -10,7 +10,6 @@ import java.util.Properties;
 
 /**
  * @author 张轲
- * @date 16/1/19
  */
 public class CommandFactory {
 

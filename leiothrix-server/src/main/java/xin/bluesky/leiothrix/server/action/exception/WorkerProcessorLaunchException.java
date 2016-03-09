@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.server.action.exception;
 
 /**
  * @author 张轲
- * @date 16/1/20
  */
 public class WorkerProcessorLaunchException extends Exception{
     public WorkerProcessorLaunchException() {

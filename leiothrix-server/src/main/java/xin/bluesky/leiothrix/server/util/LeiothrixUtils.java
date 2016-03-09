@@ -9,7 +9,6 @@ import java.io.File;
 
 /**
  * @author 张轲
- * @date 16/3/7
  */
 public class LeiothrixUtils {
 

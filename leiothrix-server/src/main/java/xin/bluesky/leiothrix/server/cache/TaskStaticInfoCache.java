@@ -4,7 +4,6 @@ import xin.bluesky.leiothrix.model.task.TaskStaticInfo;
 
 /**
  * @author 张轲
- * @date 16/3/2
  */
 public class TaskStaticInfoCache {
 

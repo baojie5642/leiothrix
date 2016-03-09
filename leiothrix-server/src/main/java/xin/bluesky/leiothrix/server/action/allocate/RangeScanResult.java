@@ -8,7 +8,6 @@ import java.util.List;
  * 如前者为true,则后者不可能为true;如前者为false,后者可能为true,也可能为false.
  *
  * @author 张轲
- * @date 16/3/1
  */
 public class RangeScanResult {
 

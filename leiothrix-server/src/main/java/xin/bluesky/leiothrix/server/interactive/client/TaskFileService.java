@@ -25,7 +25,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 
 /**
  * @author 张轲
- * @date 16/3/7
  */
 public class TaskFileService {
 

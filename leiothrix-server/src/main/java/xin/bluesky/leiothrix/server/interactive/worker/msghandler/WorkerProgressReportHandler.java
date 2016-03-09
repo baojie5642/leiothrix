@@ -12,7 +12,7 @@ import xin.bluesky.leiothrix.server.storage.RangeStorage;
 
 /**
  * @author 张轲
- * @date 16/1/24
+ * worker.processor.threadnum.factor
  */
 public class WorkerProgressReportHandler implements WorkerMessageHandler {
 

@@ -2,7 +2,6 @@ package xin.bluesky.leiothrix.server.tablemeta;
 
 /**
  * @author 张轲
- * @date 16/1/19
  */
 public class TableMeta {
     private String tableName;

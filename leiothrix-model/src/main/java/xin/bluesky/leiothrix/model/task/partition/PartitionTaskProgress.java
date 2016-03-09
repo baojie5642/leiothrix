@@ -5,7 +5,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * @author 张轲
- * @date 16/1/26
  */
 public class PartitionTaskProgress {
 

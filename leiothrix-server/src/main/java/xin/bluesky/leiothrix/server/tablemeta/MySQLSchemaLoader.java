@@ -15,7 +15,6 @@ import java.util.concurrent.CountDownLatch;
 
 /**
  * @author 张轲
- * @date 16/1/19
  */
 public class MySQLSchemaLoader extends DatabaseSchemaLoader {
 
