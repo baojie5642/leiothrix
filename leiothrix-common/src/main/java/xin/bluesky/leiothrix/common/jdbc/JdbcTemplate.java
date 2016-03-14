@@ -20,6 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
+ * //todo: 增加必要的参数检查
+ *
  * @author 张轲
  */
 public class JdbcTemplate {
@@ -171,6 +173,44 @@ public class JdbcTemplate {
      */
     public List<Integer> insertBatch(String sql, List<Object[]> params) {
         return executeBatchUpdate(sql, params);
+    }
+
+    /**
+     * 批量插入操作,根据表名和JSON数据,自动生成insert语句.
+     * 注意,dataList中的JSON,应该是从同一个SQL中查询出来的,以保证所有数据的列是一致的
+     *
+     * @param tableName
+     * @param dataList
+     * @return
+     */
+    public List<Integer> insertAllColumnBatch(String tableName, List<JSONObject> dataList) {
+        if (CollectionsUtils2.isEmpty(dataList)) {
+            throw new IllegalArgumentException("dataList不能为空");
+        }
+
+        List<String> columnList = new ArrayList();
+        JSONObject firstData = dataList.get(0);
+        StringBuffer insertBuffer = new StringBuffer("insert into ").append(tableName).append("(");
+        StringBuffer valueBuffer = new StringBuffer(" values").append("(");
+        firstData.entrySet().forEach(entry -> {
+            insertBuffer.append(entry.getKey()).append(",");
+            valueBuffer.append("?").append(",");
+            columnList.add(entry.getKey());
+        });
+        insertBuffer.deleteCharAt(insertBuffer.length() - 1).append(")");
+        valueBuffer.deleteCharAt(valueBuffer.length() - 1).append(")");
+        String sql = insertBuffer.append(valueBuffer).toString();
+
+        List<Object[]> valueDataList = new ArrayList(dataList.size());
+        dataList.forEach(data -> {
+            List<Object> e = new ArrayList();
+            columnList.forEach(column -> {
+                e.add(data.get(column));
+            });
+            valueDataList.add(e.toArray());
+        });
+
+        return executeBatchUpdate(sql, valueDataList);
     }
 
     public void update(String sql, Object... params) {

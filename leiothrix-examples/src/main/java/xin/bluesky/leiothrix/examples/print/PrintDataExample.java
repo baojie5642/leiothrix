@@ -24,7 +24,7 @@ public class PrintDataExample {
         WorkerConfiguration configuration=new WorkerConfiguration();
         configuration.setDatabasePageDataHandler(new DatabasePageDataHandler() {
             @Override
-            public void handle(String tableName, List<JSONObject> dataList) throws Exception {
+            public void handle(String tableName, String primaryKey, List<JSONObject> dataList) throws Exception {
                 dataList.forEach(data -> {
                     data.entrySet().forEach(entry -> {
                         logger.info(entry.getKey() + ":" + entry.getValue());

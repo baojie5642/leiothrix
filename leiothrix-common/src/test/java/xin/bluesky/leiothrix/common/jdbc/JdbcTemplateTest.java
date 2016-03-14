@@ -3,6 +3,7 @@ package xin.bluesky.leiothrix.common.jdbc;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
 import xin.bluesky.leiothrix.model.db.DatabaseInfo;
@@ -179,5 +180,32 @@ public class JdbcTemplateTest {
         }).toList());
         list = jdbcTemplate.query("select * from column_type_test where id=? or id=?", newIds.get(0), newIds.get(1));
         assertThat(list.size(), is(0));
+    }
+
+    /**
+     * 测试通过表名和JSON数据批量插入
+     */
+    @Test
+    public void should_insert_all_column_batch_success() throws Exception {
+        // given
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(databaseInfo);
+        String tableName = "column_type_test";
+        List<JSONObject> dataList = ImmutableList.of(
+                new JSONObject(
+                        ImmutableMap.of("TinyIntColumn", 1, "VarcharColumn", "a", "DateColumn", new Date())
+                ),
+                new JSONObject(
+                        ImmutableMap.of("TinyIntColumn", 2, "VarcharColumn", "b", "DateColumn", new Date())
+                ),
+                new JSONObject(
+                        ImmutableMap.of("DateColumn", new Date(), "VarcharColumn", "b", "TinyIntColumn", 3)
+                )
+        );
+
+        // when
+        List<Integer> newIds = jdbcTemplate.insertAllColumnBatch(tableName, dataList);
+        JSONObject obj = jdbcTemplate.query("select * from column_type_test where id=?", newIds.get(0)).get(0);
+        assertThat(obj.getString("TinyIntColumn"), is("1"));
+        assertThat(obj.getDate("DateColumn"), notNullValue());
     }
 }

@@ -91,7 +91,7 @@ public class BaseIntegrationTest {
             WorkerConfiguration configuration = new WorkerConfiguration();
             configuration.setDatabasePageDataHandler(new DatabasePageDataHandler() {
                 @Override
-                public void handle(String tableName, List<JSONObject> dataList) throws Exception {
+                public void handle(String tableName, String primaryKey, List<JSONObject> dataList) throws Exception {
                     logger.info("查询表[{}]的任务表,得到{}条数据", tableName, dataList.size());
                 }
 

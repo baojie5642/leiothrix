@@ -1,5 +1,6 @@
 package xin.bluesky.leiothrix.server.action;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.util.CollectionsUtils2;
@@ -83,8 +84,15 @@ public class WorkerProcessorInvoker {
         // 该worker总共可启动的进程数量
         int freeWorkerProcessorNumber = freeMemory / WORKER_PROCESSOR_MEMORY;
 
-        // 看当前该worker已经有多少运行中的worker进程
+        // 减去已启动的进程数量
+        int available = freeWorkerProcessorNumber - runningWorkerProcessorNumber;
 
-        return freeWorkerProcessorNumber - runningWorkerProcessorNumber;
+        // 获取配置所允许的最大进程数量
+        String configMaxProcessorNumber = ServerConfigure.get("worker.processor.maxnum");
+        if (StringUtils.isBlank(configMaxProcessorNumber) || Integer.parseInt(configMaxProcessorNumber) <= 0) {
+            return available;
+        }
+
+        return Math.min(available, Integer.parseInt(configMaxProcessorNumber));
     }
 }

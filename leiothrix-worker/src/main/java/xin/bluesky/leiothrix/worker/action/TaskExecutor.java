@@ -143,7 +143,7 @@ public class TaskExecutor implements Runnable {
 
         DatabasePageDataHandler databasePageDataHandler = Settings.getConfiguration().getDatabasePageDataHandler();
         try {
-            databasePageDataHandler.handle(partitionTask.getTableName(), result);
+            databasePageDataHandler.handle(partitionTask.getTableName(), , result);
         } catch (Exception e) {
             databasePageDataHandler.exceptionCaught(partitionTask.getTableName(), result, e);
         }

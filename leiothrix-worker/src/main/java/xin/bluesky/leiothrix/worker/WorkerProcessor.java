@@ -184,28 +184,4 @@ public class WorkerProcessor {
         return processor;
     }
 
-    public static void main(String[] args) throws Exception {
-
-        WorkerConfiguration configuration = new WorkerConfiguration();
-        configuration.setDatabasePageDataHandler(new DatabasePageDataHandler() {
-            @Override
-            public void handle(String tableName, List<JSONObject> dataList) throws Exception {
-                dataList.forEach(data -> {
-                    data.entrySet().forEach(entry -> {
-                        //logger.info(entry.getKey() + ":" + entry.getValue().getData());
-                    });
-                });
-            }
-
-            @Override
-            public void exceptionCaught(String tableName, List<JSONObject> dataList, Exception e) {
-                logger.error("处理表[{}]数据时发生异常,数据为:{},异常为:{}",
-                        tableName, CollectionsUtils2.toString(dataList), ExceptionUtils.getStackTrace(e));
-            }
-        });
-
-        WorkerProcessor bootStrap = new WorkerProcessor(configuration);
-
-        bootStrap.start();
-    }
 }
