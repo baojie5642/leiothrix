@@ -27,7 +27,7 @@ public class WorkerProcessorInvoker {
     //给worker进程分配的内存,配置中的单位为M
     public static final int WORKER_PROCESSOR_MEMORY = ServerConfigure.get("worker.processor.memory", Integer.class);
 
-    private static final int WORKER_MEMORY_REDUNDANCY = ServerConfigure.get("worker.memory.redundancy", Integer.class);
+    protected static final int WORKER_MEMORY_REDUNDANCY = ServerConfigure.get("worker.memory.redundancy", Integer.class);
 
     public void invoke(String taskId, String mainClass, String workerIp, String workerJarPath) throws WorkerProcessorLaunchException {
         String javaOpts = StringUtils2.append(" -Xms", String.valueOf(WORKER_PROCESSOR_MEMORY), "m",
@@ -83,7 +83,7 @@ public class WorkerProcessorInvoker {
         int freeMemory = (int) (physicalInfo.getMemoryFreeBeforeAsWorker() >> 10);
 
         // 该worker总共可启动的进程数量
-        int upperProcessorNumber = freeMemory / WORKER_PROCESSOR_MEMORY + WORKER_MEMORY_REDUNDANCY;
+        int upperProcessorNumber = freeMemory / (WORKER_PROCESSOR_MEMORY + WORKER_MEMORY_REDUNDANCY);
 
         return upperProcessorNumber;
     }
@@ -95,19 +95,21 @@ public class WorkerProcessorInvoker {
      * @return
      */
     public int calAvailableProcessNum(NodeInfo worker) {
+        // 已启动的进程数量
+        int runningWorkerProcessorNumber = WorkerStorage.getWorkersNumber(worker.getIp());
+
         // 物理机可启动的进程上限
         int upperProcessorNumber = getPhysicalUpperLimitProcessNum(worker);
 
-        // 减去已启动的进程数量
-        int runningWorkerProcessorNumber = WorkerStorage.getWorkersNumber(worker.getIp());
-        int available = upperProcessorNumber - runningWorkerProcessorNumber;
-
-        // 获取配置所允许的最大进程数量
+        // 配置所允许的最大进程数量
         String configMaxProcessorNumber = ServerConfigure.get("worker.processor.maxnum");
-        if (StringUtils.isBlank(configMaxProcessorNumber) || Integer.parseInt(configMaxProcessorNumber) <= 0) {
-            return available;
-        }
+        int configured = 0;
 
-        return Math.min(available, Integer.parseInt(configMaxProcessorNumber));
+
+        if (StringUtils.isNotBlank(configMaxProcessorNumber) && (configured = Integer.parseInt(configMaxProcessorNumber)) > 0) {
+            return Math.min(configured, upperProcessorNumber) - runningWorkerProcessorNumber;
+        } else {
+            return upperProcessorNumber - runningWorkerProcessorNumber;
+        }
     }
 }
