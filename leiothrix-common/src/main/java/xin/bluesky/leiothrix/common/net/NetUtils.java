@@ -6,13 +6,12 @@ import xin.bluesky.leiothrix.common.net.exception.SshException;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
 
 /**
  * @author 张轲
- * worker.processor.threadnum.factor
+ *         worker.processor.threadnum.factor
  */
 public class NetUtils {
 
@@ -40,11 +39,7 @@ public class NetUtils {
         }
 
         if (address == null) {
-            try {
-                return InetAddress.getLocalHost().getHostAddress();
-            } catch (UnknownHostException e) {
-                throw new RuntimeException(e);
-            }
+            throw new RuntimeException("没有找到local ip");
         }
 
         return address;
