@@ -208,4 +208,26 @@ public class JdbcTemplateTest {
         assertThat(obj.getString("TinyIntColumn"), is("1"));
         assertThat(obj.getDate("DateColumn"), notNullValue());
     }
+
+    /**
+     * 测试执行ddl
+     *
+     * @throws Exception
+     */
+    @Test
+    public void should_execute_ddl_success() throws Exception {
+        // given
+        String ddl = "CREATE TABLE `ddl_test` (\n" +
+                "  `Id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',\n" +
+                "  `UserId` int(11) unsigned NOT NULL COMMENT '用户Id',\n" +
+                "PRIMARY KEY (`Id`))" +
+                "ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='通话记录信息';";
+
+        // when
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(databaseInfo);
+        jdbcTemplate.executeDDL(ddl);
+
+        // then
+        assertThat(jdbcTemplate.query("select * from ddl_test").size(), is(0));
+    }
 }

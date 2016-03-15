@@ -229,6 +229,31 @@ public class JdbcTemplate {
         executeBatchUpdate(sql, params);
     }
 
+    public void executeDDL(String ddl) {
+        logger.debug("执行DDL:{}", ddl);
+        Connection connection = null;
+        Statement st = null;
+
+        try {
+            connection = dataSource.getConnection();
+            st = connection.createStatement();
+            st.executeUpdate(ddl);
+        } catch (Exception e) {
+            logger.error("DDL:{}", ddl);
+            throw new JdbcException(e);
+        } finally {
+            try {
+                if (st != null) {
+                    st.close();
+                }
+                if (connection != null) {
+                    connection.close();
+                }
+            } catch (Exception ignore) {
+            }
+        }
+    }
+
     private Integer executeUpdate(String sql, Object... params) {
         logger.debug("执行SQL:{},params:{}", sql, CollectionsUtils2.toString(params));
         Connection connection = null;
