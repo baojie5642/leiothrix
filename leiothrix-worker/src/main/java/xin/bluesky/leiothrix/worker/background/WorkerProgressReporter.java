@@ -7,6 +7,7 @@ import xin.bluesky.leiothrix.common.net.NetUtils;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTask;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTaskProgress;
+import xin.bluesky.leiothrix.worker.Settings;
 import xin.bluesky.leiothrix.worker.WorkerProcessor;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
 
@@ -48,7 +49,7 @@ public class WorkerProgressReporter implements Runnable {
         while (WorkerProcessor.getProcessor().isRunning()) {
             try {
                 PartitionTaskProgress progress = processingPartitionTaskQueue.take();
-                final String localIp = NetUtils.getLocalIp();
+                final String localIp = Settings.getWorkerIp();
                 WorkerMessage message = new WorkerMessage(WORKER_PROGRESS_REPORT, toJSONString(progress), localIp);
                 ServerChannel.send(message);
                 logger.debug("worker:{}执行任务片[taskId={},tableName={},rangeName={}],当前执行到{}",

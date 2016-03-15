@@ -34,7 +34,10 @@ public class WorkerProcessorInvoker {
                 " -Xmx", String.valueOf(WORKER_PROCESSOR_MEMORY), "m ");
 
         String serversIp = getServersIp();
-        String propOpts = StringUtils2.append(" -Dserver.ip=", serversIp, " -Dserver.port=", ServerConfigure.get("server.port.worker"), " -DtaskId=", taskId,
+        String propOpts = StringUtils2.append(" -Dserver.ip=", serversIp,
+                " -Dserver.port=", ServerConfigure.get("server.port.worker"),
+                " -Dworker.ip=", workerIp,
+                " -DtaskId=", taskId,
                 " -Dworker.processor.threadnum.factor=", ServerConfigure.get("worker.processor.threadnum.factor"));
 
         String command = StringUtils2.append(ServerConfigure.get("worker.java"), "/bin/java ", javaOpts, propOpts, " -classpath ", workerJarPath, " ", mainClass, " >/dev/null &");

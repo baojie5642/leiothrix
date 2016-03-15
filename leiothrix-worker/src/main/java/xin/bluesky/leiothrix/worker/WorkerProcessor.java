@@ -1,21 +1,17 @@
 package xin.bluesky.leiothrix.worker;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.base.Preconditions;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
 import xin.bluesky.leiothrix.common.net.NetUtils;
-import xin.bluesky.leiothrix.common.util.CollectionsUtils2;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 import xin.bluesky.leiothrix.worker.action.ExecutorsPool;
 import xin.bluesky.leiothrix.worker.action.TaskExecutor;
-import xin.bluesky.leiothrix.worker.api.DatabasePageDataHandler;
 import xin.bluesky.leiothrix.worker.background.WorkerProgressReporter;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
 
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -63,7 +59,7 @@ public class WorkerProcessor {
 
         this.executorsPool = new ExecutorsPool();
 
-        this.countDownLatch=new CountDownLatch(executorsPool.getPoolSize());
+        this.countDownLatch = new CountDownLatch(executorsPool.getPoolSize());
 
         this.progressReporter = new WorkerProgressReporter();
 
@@ -78,6 +74,8 @@ public class WorkerProcessor {
         Settings.setServersIp(serverIpConfig.split(COMMA));
 
         Settings.setServerPort(Integer.parseInt(System.getProperty("server.port")));
+
+        Settings.setWorkerIp(System.getProperty("worker.ip"));
 
         Settings.setTaskId(System.getProperty("taskId"));
 
@@ -115,12 +113,12 @@ public class WorkerProcessor {
 
     private void submitExecutor() {
         for (int i = 0; i < executorsPool.getPoolSize(); i++) {
-            executorsPool.submit(new TaskExecutor(progressReporter,countDownLatch));
+            executorsPool.submit(new TaskExecutor(progressReporter, countDownLatch));
         }
     }
 
     private void increaseWorkerNumber() {
-        WorkerMessage message = new WorkerMessage(WORKER_NUM_INCR, null, NetUtils.getLocalIp());
+        WorkerMessage message = new WorkerMessage(WORKER_NUM_INCR, null, Settings.getWorkerIp());
         ServerChannel.send(message);
     }
 
@@ -163,7 +161,7 @@ public class WorkerProcessor {
     }
 
     private void decreaseWorkerNumber() {
-        WorkerMessage message = new WorkerMessage(WORKER_NUM_DECR, null, NetUtils.getLocalIp());
+        WorkerMessage message = new WorkerMessage(WORKER_NUM_DECR, null, Settings.getWorkerIp());
         ServerChannel.send(message);
         try {
             Thread.sleep(2000);//等待2秒确保信息发送出去了

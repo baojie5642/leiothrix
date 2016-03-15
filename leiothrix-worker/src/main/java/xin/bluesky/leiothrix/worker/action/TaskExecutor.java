@@ -143,7 +143,7 @@ public class TaskExecutor implements Runnable {
 
         DatabasePageDataHandler databasePageDataHandler = Settings.getConfiguration().getDatabasePageDataHandler();
         try {
-            databasePageDataHandler.handle(partitionTask.getTableName(), , result);
+            databasePageDataHandler.handle(partitionTask.getTableName(), partitionTask.getPrimaryKey(), result);
         } catch (Exception e) {
             databasePageDataHandler.exceptionCaught(partitionTask.getTableName(), result, e);
         }
@@ -159,7 +159,7 @@ public class TaskExecutor implements Runnable {
     }
 
     private void notifyServerFinished(PartitionTask partitionTask) {
-        WorkerMessage message = new WorkerMessage(WorkerMessageType.FINISHED_TASK, JSON.toJSONString(partitionTask), NetUtils.getLocalIp());
+        WorkerMessage message = new WorkerMessage(WorkerMessageType.FINISHED_TASK, JSON.toJSONString(partitionTask), Settings.getWorkerIp());
         ServerChannel.send(message);
     }
 }

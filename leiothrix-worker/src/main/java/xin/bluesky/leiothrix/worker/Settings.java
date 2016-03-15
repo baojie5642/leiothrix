@@ -11,6 +11,8 @@ public class Settings {
 
     private static Integer serverPort;
 
+    private static String workerIp;
+
     private static String taskId;
 
     private static int threadNumFactor;
@@ -37,6 +39,14 @@ public class Settings {
 
     public static void setServerPort(Integer serverPort) {
         Settings.serverPort = serverPort;
+    }
+
+    public static String getWorkerIp() {
+        return workerIp;
+    }
+
+    public static void setWorkerIp(String workerIp) {
+        Settings.workerIp = workerIp;
     }
 
     public static String getTaskId() {
