@@ -41,7 +41,7 @@ public class SubmitTaskServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         final String taskId = UUID.randomUUID().toString();
-        logger.info("接收到client[ip={}]发来的任务,为其创建任务ID:{}", getLocalHost().getHostAddress(), taskId);
+        logger.info("接收到client[ip={}]发来的任务,为其创建任务ID:{}", request.getRemoteAddr(), taskId);
 
         DiskFileItemFactory factory = new DiskFileItemFactory();
         ServletFileUpload submit = new ServletFileUpload(factory);
