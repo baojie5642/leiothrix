@@ -73,22 +73,34 @@ public class WorkerProcessorInvoker {
     }
 
     /**
+     * 获得worker物理机的自身内存,所允许启动的进程数量上限
+     *
+     * @param worker
+     * @return
+     */
+    public int getPhysicalUpperLimitProcessNum(NodeInfo worker) {
+        NodePhysicalInfo physicalInfo = worker.getPhysicalInfo();
+        int freeMemory = (int) (physicalInfo.getMemoryFreeBeforeAsWorker() >> 10);
+
+        // 该worker总共可启动的进程数量
+        int upperProcessorNumber = freeMemory / WORKER_PROCESSOR_MEMORY + WORKER_MEMORY_REDUNDANCY;
+
+        return upperProcessorNumber;
+    }
+
+    /**
      * 以内存来计算可分配的worker进程数量.
      *
      * @param worker
      * @return
      */
-    public int calMaxWorkerProcess(NodeInfo worker) {
-        int runningWorkerProcessorNumber = WorkerStorage.getWorkersNumber(worker.getPhysicalInfo().getIp());
-
-        NodePhysicalInfo physicalInfo = worker.getPhysicalInfo();
-        int freeMemory = (int) (physicalInfo.getMemoryFreeBeforeAsWorker() >> 10) - runningWorkerProcessorNumber * WORKER_MEMORY_REDUNDANCY;
-
-        // 该worker总共可启动的进程数量
-        int freeWorkerProcessorNumber = freeMemory / WORKER_PROCESSOR_MEMORY;
+    public int calAvailableProcessNum(NodeInfo worker) {
+        // 物理机可启动的进程上限
+        int upperProcessorNumber = getPhysicalUpperLimitProcessNum(worker);
 
         // 减去已启动的进程数量
-        int available = freeWorkerProcessorNumber - runningWorkerProcessorNumber;
+        int runningWorkerProcessorNumber = WorkerStorage.getWorkersNumber(worker.getIp());
+        int available = upperProcessorNumber - runningWorkerProcessorNumber;
 
         // 获取配置所允许的最大进程数量
         String configMaxProcessorNumber = ServerConfigure.get("worker.processor.maxnum");

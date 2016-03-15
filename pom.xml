@@ -61,6 +61,18 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-module-junit4</artifactId>
+                <version>1.6.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.powermock</groupId>
+                <artifactId>powermock-api-mockito</artifactId>
+                <version>1.6.2</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
                 <version>4.0.34.Final</version>
@@ -116,6 +128,10 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+
+    </dependencies>
 
     <build>
         <plugins>

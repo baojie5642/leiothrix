@@ -18,8 +18,6 @@ public class CompensateSingleTaskStrategy implements CompensateStrategy {
 
     public static final Logger logger = LoggerFactory.getLogger(CompensateSingleTaskStrategy.class);
 
-    private WorkerProcessorLauncher workerProcessorLauncher = new WorkerProcessorLauncher();
-
     @Override
     public void execute() {
         String taskId = null;
@@ -38,7 +36,8 @@ public class CompensateSingleTaskStrategy implements CompensateStrategy {
                 return;
             }
 
-            workerProcessorLauncher.launch(taskId);
+            WorkerProcessorLauncher workerProcessorLauncher = new WorkerProcessorLauncher(taskId);
+            workerProcessorLauncher.launch();
         } catch (NoResourceException e) {
             logger.info("当前所有资源都被分配完毕,没有可用资源来执行任务[taskId={}]", taskId);
         } catch (NotAllowedLaunchException e) {

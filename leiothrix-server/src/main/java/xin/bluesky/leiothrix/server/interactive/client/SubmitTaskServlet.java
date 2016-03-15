@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
-import static java.net.InetAddress.getLocalHost;
 import static xin.bluesky.leiothrix.model.bin.SubmitStatus.FAIL;
 import static xin.bluesky.leiothrix.model.bin.SubmitStatus.SUCCESS;
 
@@ -57,7 +56,7 @@ public class SubmitTaskServlet extends HttpServlet {
             DatabaseSchemaLoader.loadDatabaseSchema(taskId);
 
             // 启动worker进程来处理该任务
-            new WorkerProcessorLauncher().launch(taskId);
+            new WorkerProcessorLauncher(taskId).launch();
 
             // 返回给客户端
             submitResponse = new SubmitResponse(taskId, SUCCESS);

@@ -13,9 +13,7 @@ import xin.bluesky.leiothrix.server.action.exception.WorkerProcessorLaunchExcept
 import xin.bluesky.leiothrix.server.bean.node.NodeInfo;
 import xin.bluesky.leiothrix.server.storage.TaskStorage;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -29,41 +27,79 @@ public class WorkerProcessorLauncher {
 
     private static final Logger logger = LoggerFactory.getLogger(WorkerProcessorLauncher.class);
 
-    private WorkerProcessorInvoker workerProcessorInvoker = new WorkerProcessorInvoker();
+    private WorkerProcessorInvoker workerProcessorInvoker;
 
-    private WorkerManager workerManager = new WorkerManager();
+    private WorkerManager workerManager;
 
-    public void launch(String taskId) throws WorkerProcessorLaunchException, NoResourceException, NotAllowedLaunchException {
-        List<NodeInfo> allWorkers = workerManager.getAllWorkerInfoWithInitialMemory();
+    private String taskId;
 
-        logger.info("开始计算worker[{}]上的资源,如资源足够,则启动worker进程.每个worker进程需要占用{}m内存",
-                CollectionsUtils2.toString(from(allWorkers).transform((info) -> info.getPhysicalInfo().getIp()).toList()), WORKER_PROCESSOR_MEMORY);
+    private List<NodeInfo> allWorkers;
 
-        int successProcessorNum = 0;
-        boolean noResource = true;
-        LaunchLog launchLog = new LaunchLog();
+    private LaunchLog launchLog;
 
-        TaskStaticInfo taskStaticInfo = TaskStorage.getTaskStaticInfo(taskId);
+    private TaskStaticInfo taskStaticInfo;
 
+    private boolean noResource = true;
+
+    public WorkerProcessorLauncher(String taskId) {
+        this.workerProcessorInvoker = new WorkerProcessorInvoker();
+        this.workerManager = new WorkerManager();
+        this.launchLog = new LaunchLog();
+        this.taskId = taskId;
+    }
+
+    public LaunchLog launch() throws WorkerProcessorLaunchException, NoResourceException, NotAllowedLaunchException {
+
+        before();
+
+        LaunchLog launchLog = doLaunch();
+
+        after();
+
+        return launchLog;
+    }
+
+    protected void before() {
+        this.allWorkers = workerManager.getAllWorkerInfoWithInitialMemory();
+        this.taskStaticInfo = TaskStorage.getTaskStaticInfo(taskId);
+
+        allWorkers.forEach(worker -> {
+            final int numBeforeLaunch = workerProcessorInvoker.calAvailableProcessNum(worker);
+            launchLog.setAvailableProcessNumBeforeLuanch(worker.getIp(), numBeforeLaunch);
+        });
+
+        logger.info("当前为任务[taskId={}]可分配的资源如下(每个进程占用{}m内存):\r\n{}",
+                taskId,
+                WORKER_PROCESSOR_MEMORY,
+                CollectionsUtils2.toString(
+                        from(allWorkers)
+                                .transform((info) -> {
+                                    return info.getIp() + ":可启动" + launchLog.getAvailableProcessNumBeforeLuanch(info.getIp()) + "个进程";
+                                })
+                                .toList()
+                        , "\r\n")
+        );
+
+    }
+
+    protected LaunchLog doLaunch() {
         BlockingQueue<NodeInfo> availableQueue = new ArrayBlockingQueue(allWorkers.size(), false, allWorkers);
+
         while (resourceIsNotEnough(taskId) && availableQueue.size() != 0) {//已启动资源是否足够该任务执行
             NodeInfo worker = availableQueue.poll();
-            String ip = worker.getPhysicalInfo().getIp();
+            String ip = worker.getIp();
 
             try {
-                int availableWorkerProcessNumber = workerProcessorInvoker.calMaxWorkerProcess(worker);
+                int availableWorkerProcessNumber = calAvailableProcessNum(worker);
                 if (availableWorkerProcessNumber <= 0) {
-                    logger.info("在{}上没有可用资源来启动worker进程[taskId={}]", ip, taskId);
                     continue;
                 }
-                logger.info("在{}上的当前资源可以为任务[taskId={}]启动{}个进程", ip, taskId, availableWorkerProcessNumber);
-                noResource = false;
+                this.noResource = false;
 
                 String workerJarPath = copyJar2WorkerIfNecessary(taskId, launchLog, taskStaticInfo.getJarPath(), ip);
 
                 workerProcessorInvoker.invoke(taskId, taskStaticInfo.getMainClass(), ip, workerJarPath);
 
-                successProcessorNum++;
                 launchLog.incProcessorNum(ip);
                 availableQueue.offer(worker);
 
@@ -74,13 +110,17 @@ public class WorkerProcessorLauncher {
 
         }
 
+        return launchLog;
+    }
+
+    protected void after() throws NoResourceException, WorkerProcessorLaunchException {
         if (noResource) {
             throw new NoResourceException();
         }
-        if (successProcessorNum == 0) {
+        if (launchLog.getTotalProcessorNum() == 0) {
             throw new WorkerProcessorLaunchException("在所有worker上启动worker均失败");
         } else {
-            logger.info("所有可用资源分配完毕,总共为任务[taskId={}]分配{}个worker进程,分配情况:{}", taskId, successProcessorNum, printDistribute(allWorkers, launchLog));
+            logger.info("所有可用资源分配完毕,总共为任务[taskId={}]分配{}个worker进程,分配情况:{}", taskId, launchLog.getTotalProcessorNum(), printDistribute(allWorkers, launchLog));
         }
 
         TaskStorage.setStatus(taskId, TaskStatus.PROCESSING);
@@ -88,6 +128,18 @@ public class WorkerProcessorLauncher {
 
     public boolean resourceIsNotEnough(String taskId) {
         return !TaskStorage.isResourceEnough(taskId);
+    }
+
+    protected int calAvailableProcessNum(NodeInfo worker) {
+        // 根据zk的记录,来得到的可用进程数
+        int accuracy = workerProcessorInvoker.calAvailableProcessNum(worker);
+
+        // 根据启动记录,得到的可用进程数
+        int numBeforeLaunch = launchLog.getAvailableProcessNumBeforeLuanch(worker.getIp());
+        int estimate = numBeforeLaunch - launchLog.getProcessorNum(worker.getIp());
+
+        // 取小值.正常情况下,这两个值应该是一样大(除非多个task并行调度),取较小值的目的是为了避免worker进程无法启动导致这里会不断启动新进程
+        return Math.min(accuracy, estimate);
     }
 
     private String copyJar2WorkerIfNecessary(String taskId, LaunchLog launchLog, String serverJarPath, String ip) throws Exception {
@@ -102,7 +154,7 @@ public class WorkerProcessorLauncher {
     private String printDistribute(List<NodeInfo> allWorkers, LaunchLog launchLog) {
         StringBuffer buffer = new StringBuffer();
         allWorkers.forEach(node -> {
-            String ip = node.getPhysicalInfo().getIp();
+            String ip = node.getIp();
             int processNum = launchLog.getProcessorNum(ip);
             buffer.append("ip:" + ip + ",进程数:" + processNum + ";");
         });
@@ -110,60 +162,11 @@ public class WorkerProcessorLauncher {
         return buffer.toString();
     }
 
-    private class LaunchLog {
+    public void setWorkerProcessorInvoker(WorkerProcessorInvoker workerProcessorInvoker) {
+        this.workerProcessorInvoker = workerProcessorInvoker;
+    }
 
-        private Map<String, LogDetail> map = new HashMap();
-
-        private LogDetail createLogDetailIfAbsent(String workerIp) {
-            LogDetail detail = map.get(workerIp);
-            if (detail == null) {
-                detail = new LogDetail();
-                map.put(workerIp, detail);
-            }
-            return detail;
-        }
-
-        public void addJarPath(String workerIp, String jarPath) {
-            LogDetail detail = createLogDetailIfAbsent(workerIp);
-            detail.setJarPath(jarPath);
-        }
-
-        public void incProcessorNum(String workerIp) {
-            LogDetail detail = createLogDetailIfAbsent(workerIp);
-            detail.setProcessorNum(detail.getProcessorNum() + 1);
-        }
-
-        public String getJarPath(String workerIp) {
-            LogDetail detail = createLogDetailIfAbsent(workerIp);
-            return detail.getJarPath();
-        }
-
-        public int getProcessorNum(String workerIp) {
-            LogDetail detail = createLogDetailIfAbsent(workerIp);
-            return detail.getProcessorNum();
-        }
-
-        private class LogDetail {
-
-            private String jarPath;
-
-            private int processorNum;
-
-            public String getJarPath() {
-                return jarPath;
-            }
-
-            public void setJarPath(String jarPath) {
-                this.jarPath = jarPath;
-            }
-
-            public int getProcessorNum() {
-                return processorNum;
-            }
-
-            public void setProcessorNum(int processorNum) {
-                this.processorNum = processorNum;
-            }
-        }
+    public void setWorkerManager(WorkerManager workerManager) {
+        this.workerManager = workerManager;
     }
 }

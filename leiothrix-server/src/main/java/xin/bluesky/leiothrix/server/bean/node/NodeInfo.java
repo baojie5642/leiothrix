@@ -21,6 +21,10 @@ public class NodeInfo {
         return physicalInfo;
     }
 
+    public String getIp() {
+        return physicalInfo.getIp();
+    }
+
     public void setPhysicalInfo(NodePhysicalInfo physicalInfo) {
         this.physicalInfo = physicalInfo;
     }
