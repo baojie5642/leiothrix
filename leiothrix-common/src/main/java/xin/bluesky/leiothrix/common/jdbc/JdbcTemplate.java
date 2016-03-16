@@ -27,7 +27,7 @@ public class JdbcTemplate {
 
     private static final Logger logger = LoggerFactory.getLogger(JdbcTemplate.class);
 
-    private static final int BATCH_SIZE = 1;
+    private static final int BATCH_SIZE = 500;
 
     private DataSource dataSource;
 

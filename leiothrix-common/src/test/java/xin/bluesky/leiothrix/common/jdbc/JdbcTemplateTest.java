@@ -229,5 +229,6 @@ public class JdbcTemplateTest {
 
         // then
         assertThat(jdbcTemplate.query("select * from ddl_test").size(), is(0));
+        jdbcTemplate.executeDDL("drop table ddl_test");
     }
 }
