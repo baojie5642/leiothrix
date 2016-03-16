@@ -145,7 +145,7 @@ public class JdbcTemplateTest {
     public void should_insert_batch_correct() throws Exception {
         // given
         JdbcTemplate jdbcTemplate = new JdbcTemplate(databaseInfo);
-        String sql = "insert into column_type_test(TinyIntColumn,DecimalColumn,VarcharColumn,DateColumn,DateTimeColumn)" +
+        String insertSql = "insert into column_type_test(TinyIntColumn,DecimalColumn,VarcharColumn,DateColumn,DateTimeColumn)" +
                 " values(?,?,?,?,?)";
         String updateSql = "update column_type_test set VarcharColumn=? where id=?";
         String deleteSql = "delete from column_type_test where id=?";
@@ -155,7 +155,7 @@ public class JdbcTemplateTest {
                 new Object[]{1, 100.43, "myname", new Date(), new Date()},
                 new Object[]{2, 101, "myname2", new Date(), new Date()}
         );
-        List<Integer> newIds = jdbcTemplate.insertBatch(sql, data);
+        List<Integer> newIds = jdbcTemplate.insertBatch(insertSql, data);
         JSONObject obj = jdbcTemplate.query("select * from column_type_test where id=?", newIds.get(0)).get(0);
         assertThat(obj.getString("TinyIntColumn"), is("1"));
         assertThat(obj.getDate("DateColumn"), notNullValue());
