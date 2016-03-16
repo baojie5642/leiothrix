@@ -20,5 +20,11 @@ public class ShutdownHook extends Thread {
     public void run() {
         logger.info("执行ShutdownHook");
         ProcessorAnnouncer.decreaseProcessorNumber();
+
+        try {
+            WorkerProcessor.getProcessor().shutdown();
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
     }
 }

@@ -27,6 +27,7 @@ public class ProcessorAnnouncer {
         if (counter == 1) {
             WorkerMessage message = new WorkerMessage(WORKER_NUM_DECR, null, Settings.getWorkerIp());
             ServerChannel.send(message);
+            logger.info("向server宣告进程结束");
             counter--;
             try {
                 Thread.sleep(2000);//等待2秒确保信息发送出去了
@@ -40,6 +41,7 @@ public class ProcessorAnnouncer {
         if (counter == 0) {
             WorkerMessage message = new WorkerMessage(WORKER_NUM_INCR, null, Settings.getWorkerIp());
             ServerChannel.send(message);
+            logger.info("向server宣告进程启动");
             counter++;
         }
     }
