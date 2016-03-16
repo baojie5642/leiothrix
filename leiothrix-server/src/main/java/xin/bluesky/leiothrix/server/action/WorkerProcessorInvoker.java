@@ -30,36 +30,57 @@ public class WorkerProcessorInvoker {
     protected static final int WORKER_MEMORY_REDUNDANCY = ServerConfigure.get("worker.memory.redundancy", Integer.class);
 
     public void invoke(String taskId, String mainClass, String workerIp, String workerJarPath) throws WorkerProcessorLaunchException {
-        String javaOpts = StringUtils2.append(" -Xms", String.valueOf(WORKER_PROCESSOR_MEMORY), "m",
-                " -Xmx", String.valueOf(WORKER_PROCESSOR_MEMORY), "m ");
 
-        String serversIp = getServersIp();
-        String propOpts = StringUtils2.append(" -Dserver.ip=", serversIp,
+        String javaOpts = makeJavaOpts();
+
+        String propOpts = makePropOpts(taskId, workerIp);
+
+        String command = makeCommand(javaOpts, propOpts, workerJarPath, mainClass);
+
+        String remoteFullCommand = makeRemoteFullCommand(workerIp, command);
+        logger.info("启动远程worker进程的命令:{}", remoteFullCommand);
+
+        try {
+            int exitValue = Runtime.getRuntime().exec(remoteFullCommand).waitFor();
+            if (exitValue != 0) {
+                throw new Exception(String.format("command=[%s],exitValue=[%s]", remoteFullCommand, exitValue));
+            }
+        } catch (Exception e) {
+            throw new WorkerProcessorLaunchException(String.format("在%s启动worker进程时失败", workerIp), e);
+        }
+
+    }
+
+    private String makeJavaOpts() {
+        final String prop = System.getProperty("java.version");
+        Float javaVersion = Float.parseFloat(prop.substring(0, prop.indexOf(".", prop.indexOf(".") + 1)));
+
+        String javaOpts = StringUtils2.append(" -Xms", String.valueOf(WORKER_PROCESSOR_MEMORY), "m",
+                " -Xmx", String.valueOf(WORKER_PROCESSOR_MEMORY), "m ",
+                " -XX:NewRatio=", ServerConfigure.get("worker.processor.newratio"),
+                " -XX:SurvivorRatio=", ServerConfigure.get("worker.processor.survivorratio"));
+        if (javaVersion.compareTo(Float.parseFloat("1.8")) < 0) {
+            javaOpts = StringUtils2.append(javaOpts,
+                    " -XX:MaxPermSize=", ServerConfigure.get("worker.processor.maxpermsize"), "m ");
+        }
+        return javaOpts;
+    }
+
+    private String makePropOpts(String taskId, String workerIp) {
+        return StringUtils2.append(" -Dserver.ip=", getServersIp(),
                 " -Dserver.port=", ServerConfigure.get("server.port.worker"),
                 " -Dworker.ip=", workerIp,
                 " -DtaskId=", taskId,
+                " -Dworker.range.pagesize=", ServerConfigure.get("worker.range.pagesize"),
                 " -Dworker.processor.threadnum.factor=", ServerConfigure.get("worker.processor.threadnum.factor"));
+    }
 
-        String command = StringUtils2.append(ServerConfigure.get("worker.java"), "/bin/java ", javaOpts, propOpts, " -classpath ", workerJarPath, " ", mainClass, " >/dev/null &");
+    private String makeCommand(String javaOpts, String propOpts, String workerJarPath, String mainClass) {
+        return StringUtils2.append(ServerConfigure.get("worker.java"), "/bin/java ", javaOpts, propOpts, " -classpath ", workerJarPath, " ", mainClass, " >/dev/null &");
+    }
 
-        int exitValue;
-        String remoteFullCommand;
-        try {
-            remoteFullCommand = CommandFactory.getRemoteFullCommand(
-                    String.format(command, javaOpts),
-                    ServerConfigure.get("worker.user"), workerIp);
-
-            logger.info("启动远程worker进程的命令:{}", remoteFullCommand);
-            final Process exec = Runtime.getRuntime().exec(remoteFullCommand);
-            exitValue = exec.waitFor();
-        } catch (Exception e) {
-            throw new WorkerProcessorLaunchException(String.format("在%s启动worker进程时失败", workerIp));
-        }
-
-        if (exitValue != 0) {
-            throw new WorkerProcessorLaunchException(String.format("在%s启动worker进程时失败.command=[%s],exitValue=[%s]",
-                    workerIp, remoteFullCommand, exitValue));
-        }
+    private String makeRemoteFullCommand(String workerIp, String command) {
+        return CommandFactory.getRemoteFullCommand(command, ServerConfigure.get("worker.user"), workerIp);
     }
 
     private String getServersIp() {

@@ -15,6 +15,8 @@ public class Settings {
 
     private static String taskId;
 
+    private static int rangePageSize;
+
     private static int threadNumFactor;
 
     public static WorkerConfiguration getConfiguration() {
@@ -55,6 +57,14 @@ public class Settings {
 
     public static void setTaskId(String taskId) {
         Settings.taskId = taskId;
+    }
+
+    public static int getRangePageSize() {
+        return rangePageSize;
+    }
+
+    public static void setRangePageSize(int rangePageSize) {
+        Settings.rangePageSize = rangePageSize;
     }
 
     public static int getThreadNumFactor() {

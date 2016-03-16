@@ -8,7 +8,6 @@ import org.apache.commons.lang3.time.StopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
-import xin.bluesky.leiothrix.common.net.NetUtils;
 import xin.bluesky.leiothrix.common.util.StringUtils2;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 import xin.bluesky.leiothrix.model.msg.WorkerMessageType;
@@ -33,10 +32,6 @@ import static xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper.ST
 public class TaskExecutor implements Runnable {
 
     private static final Logger logger = LoggerFactory.getLogger(TaskExecutor.class);
-
-    //todo: 可以考虑给application传递该参数的接口
-    //worker中的每个工作线程,针对拿到的任务片,还需要分页查询,该属性指定了每页的数据条数
-    private static final int WORKER_QUERY_RANGE = 10000;
 
     private static final int ACQUIRE_TASK_TIMEOUT = 15;
 
@@ -109,7 +104,7 @@ public class TaskExecutor implements Runnable {
     private void execute(PartitionTask partitionTask, JdbcTemplate jdbcTemplate) {
         long startIndex = partitionTask.getRowStartIndex();
         while (ableRunning()) {
-            long endIndex = startIndex + WORKER_QUERY_RANGE - 1;
+            long endIndex = startIndex + Settings.getRangePageSize() - 1;
             if (endIndex > partitionTask.getRowEndIndex()) {
                 executePage(partitionTask, jdbcTemplate, startIndex, partitionTask.getRowEndIndex());
                 //最后一片任务不报告,以避免报告的消息在任务片结束的消息之后到达server,导致该range的状态不对
@@ -137,21 +132,27 @@ public class TaskExecutor implements Runnable {
         }
 
         List<JSONObject> result = jdbcTemplate.query(sql, startIndex, endIndex);
-        logger.info("本次任务片分页查询[table={},startIndex={},endIndex={}]查询结束,有{}行数据,耗时{}毫秒",
-                partitionTask.getTableName(), partitionTask.getRowStartIndex(),
-                partitionTask.getRowEndIndex(), result.size(), stopWatch.getTime());
+        stopWatch.stop();
+        long queryUsingTime = stopWatch.getTime();
 
+        stopWatch.reset();
+        stopWatch.start();
         DatabasePageDataHandler databasePageDataHandler = Settings.getConfiguration().getDatabasePageDataHandler();
         try {
             databasePageDataHandler.handle(partitionTask.getTableName(), partitionTask.getPrimaryKey(), result);
         } catch (Exception e) {
             databasePageDataHandler.exceptionCaught(partitionTask.getTableName(), result, e);
         }
+        stopWatch.stop();
+        long handleUsingTime = stopWatch.getTime();
+        logger.info("本次任务片分页查询[table={},startIndex={},endIndex={}]查询结束,有{}行数据,查询耗时{}毫秒,处理耗时{}毫秒,总共耗时{}毫秒",
+                partitionTask.getTableName(), partitionTask.getRowStartIndex(),
+                partitionTask.getRowEndIndex(), result.size(), queryUsingTime, handleUsingTime, (queryUsingTime + handleUsingTime));
     }
 
     private int calQueryPage(PartitionTask partitionTask) {
-        int page = (int) ((partitionTask.getRowEndIndex() - partitionTask.getRowStartIndex()) / WORKER_QUERY_RANGE);
-        long balance = (partitionTask.getRowEndIndex() - partitionTask.getRowStartIndex()) % WORKER_QUERY_RANGE;
+        int page = (int) ((partitionTask.getRowEndIndex() - partitionTask.getRowStartIndex()) / Settings.getRangePageSize());
+        long balance = (partitionTask.getRowEndIndex() - partitionTask.getRowStartIndex()) % Settings.getRangePageSize();
         if (balance != 0) {
             page = page + 1;
         }

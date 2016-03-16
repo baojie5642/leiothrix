@@ -5,7 +5,6 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
-import xin.bluesky.leiothrix.common.net.NetUtils;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 import xin.bluesky.leiothrix.worker.action.ExecutorsPool;
 import xin.bluesky.leiothrix.worker.action.TaskExecutor;
@@ -78,6 +77,8 @@ public class WorkerProcessor {
         Settings.setWorkerIp(System.getProperty("worker.ip"));
 
         Settings.setTaskId(System.getProperty("taskId"));
+
+        Settings.setRangePageSize(Integer.parseInt(System.getProperty("worker.range.pagesize")));
 
         Settings.setThreadNumFactor(Integer.parseInt(System.getProperty("worker.processor.threadnum.factor")));
     }
