@@ -96,7 +96,7 @@ public class WorkerProcessor {
         try {
             ServerChannel.connect(Settings.getServersIp(), Settings.getServerPort());
 
-            ProcessorAnnouncer.increaseWorkerNumber();
+            ProcessorAnnouncer.increaseProcessorNumber();
 
             Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
@@ -145,7 +145,7 @@ public class WorkerProcessor {
 
         progressReporter.shutdown();
 
-        ProcessorAnnouncer.decreaseWorkerNumber();
+        ProcessorAnnouncer.decreaseProcessorNumber();
 
         JdbcTemplate.destroy();
 

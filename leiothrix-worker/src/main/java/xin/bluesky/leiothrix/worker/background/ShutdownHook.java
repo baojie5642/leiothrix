@@ -19,6 +19,6 @@ public class ShutdownHook extends Thread {
     @Override
     public void run() {
         logger.info("执行ShutdownHook");
-        ProcessorAnnouncer.decreaseWorkerNumber();
+        ProcessorAnnouncer.decreaseProcessorNumber();
     }
 }
