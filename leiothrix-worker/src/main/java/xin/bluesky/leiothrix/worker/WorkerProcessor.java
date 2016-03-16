@@ -5,11 +5,11 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
-import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 import xin.bluesky.leiothrix.worker.action.ExecutorsPool;
+import xin.bluesky.leiothrix.worker.action.ProcessorAnnouncer;
 import xin.bluesky.leiothrix.worker.action.TaskExecutor;
 import xin.bluesky.leiothrix.worker.background.WorkerProgressReporter;
-import xin.bluesky.leiothrix.worker.background.WorkerShutdownHook;
+import xin.bluesky.leiothrix.worker.background.ShutdownHook;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
 
 import java.util.concurrent.CountDownLatch;
@@ -17,8 +17,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
 import static xin.bluesky.leiothrix.common.util.StringUtils2.COMMA;
-import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.WORKER_NUM_DECR;
-import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.WORKER_NUM_INCR;
 import static xin.bluesky.leiothrix.worker.WorkerProcessor.Status.*;
 
 /**
@@ -98,9 +96,9 @@ public class WorkerProcessor {
         try {
             ServerChannel.connect(Settings.getServersIp(), Settings.getServerPort());
 
-            increaseWorkerNumber();
+            ProcessorAnnouncer.increaseWorkerNumber();
 
-            Runtime.getRuntime().addShutdownHook(new WorkerShutdownHook());
+            Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
             submitExecutor();
 
@@ -119,11 +117,6 @@ public class WorkerProcessor {
         for (int i = 0; i < executorsPool.getPoolSize(); i++) {
             executorsPool.submit(new TaskExecutor(progressReporter, countDownLatch));
         }
-    }
-
-    private void increaseWorkerNumber() {
-        WorkerMessage message = new WorkerMessage(WORKER_NUM_INCR, null, Settings.getWorkerIp());
-        ServerChannel.send(message);
     }
 
     public void awaitTermination() throws InterruptedException {
@@ -152,7 +145,7 @@ public class WorkerProcessor {
 
         progressReporter.shutdown();
 
-        decreaseWorkerNumber();
+        ProcessorAnnouncer.decreaseWorkerNumber();
 
         JdbcTemplate.destroy();
 
@@ -162,16 +155,6 @@ public class WorkerProcessor {
 
         logger.info("worker进程成功退出");
 //        System.exit(0);
-    }
-
-    private void decreaseWorkerNumber() {
-        WorkerMessage message = new WorkerMessage(WORKER_NUM_DECR, null, Settings.getWorkerIp());
-        ServerChannel.send(message);
-        try {
-            Thread.sleep(2000);//等待2秒确保信息发送出去了
-        } catch (InterruptedException e) {
-            logger.error(e.getMessage(), e);
-        }
     }
 
     public Status getStatus() {
