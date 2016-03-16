@@ -9,6 +9,7 @@ import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 import xin.bluesky.leiothrix.worker.action.ExecutorsPool;
 import xin.bluesky.leiothrix.worker.action.TaskExecutor;
 import xin.bluesky.leiothrix.worker.background.WorkerProgressReporter;
+import xin.bluesky.leiothrix.worker.background.WorkerShutdownHook;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
 
 import java.util.concurrent.CountDownLatch;
@@ -98,6 +99,8 @@ public class WorkerProcessor {
             ServerChannel.connect(Settings.getServersIp(), Settings.getServerPort());
 
             increaseWorkerNumber();
+
+            Runtime.getRuntime().addShutdownHook(new WorkerShutdownHook());
 
             submitExecutor();
 
