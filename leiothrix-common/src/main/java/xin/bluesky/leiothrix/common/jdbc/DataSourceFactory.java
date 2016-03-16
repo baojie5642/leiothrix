@@ -57,10 +57,11 @@ public class DataSourceFactory {
                 databaseInfo.getIp(), ":",
                 databaseInfo.getPort(), "/",
                 databaseInfo.getSchema(),
-                StringUtils.isNotBlank(databaseInfo.getParams()) ? "?" : "", databaseInfo.getParams());
+                "?rewriteBatchedStatements=true",
+                StringUtils.isNotBlank(databaseInfo.getParams()) ? ("&" + databaseInfo.getParams()) : "");
     }
 
-    public static void destory() {
+    public static void destroy() {
         dataSourceMap.values().forEach(ds -> {
             ds.close();
         });

@@ -14,6 +14,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import static xin.bluesky.leiothrix.common.jdbc.JdbcUtils.closeQuietly;
 
@@ -249,7 +250,7 @@ public class JdbcTemplate {
     }
 
     public static void destroy() {
-        DataSourceFactory.destory();
+        DataSourceFactory.destroy();
     }
 
 }
