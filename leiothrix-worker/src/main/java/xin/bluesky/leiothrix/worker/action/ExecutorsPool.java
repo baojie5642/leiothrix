@@ -14,7 +14,7 @@ import static java.math.BigDecimal.ROUND_HALF_DOWN;
 
 /**
  * @author 张轲
- * worker.processor.threadnum.factor
+ *         worker.processor.threadnum.factor
  */
 public class ExecutorsPool {
 
@@ -45,7 +45,7 @@ public class ExecutorsPool {
         // 用cpu processor数除以最大worker进程数,得到大致每个worker进程占的cpu.保留一位精度并舍弃多余位数
         BigDecimal roughCpuNumbersForMe = new BigDecimal(cpuNumbers / maxWorkerProcessNum).setScale(1, ROUND_HALF_DOWN);
 
-        // 每个cpu processor对应的线程数,向下取整
+        // 每个cpu processor*单CPU使用的线程数因子,向下取整
         return roughCpuNumbersForMe.multiply(new BigDecimal(Settings.getThreadNumFactor())).intValue();
     }
 
