@@ -39,11 +39,12 @@ public class DataSourceFactory {
         poolProperties.setUsername(databaseInfo.getUserName());
         poolProperties.setPassword(databaseInfo.getPassword());
         poolProperties.setTestWhileIdle(true);
-        poolProperties.setMaxActive(100);
-        poolProperties.setInitialSize(10);
-        poolProperties.setMaxIdle(5);
-        poolProperties.setMinIdle(5);
+        poolProperties.setMaxActive(get(databaseInfo.getPoolMaxActive(), 10));
+        poolProperties.setInitialSize(5);
+        poolProperties.setMaxIdle(get(databaseInfo.getPoolMaxIdle(), 2));
+        poolProperties.setMinIdle(1);
         poolProperties.setValidationQuery("SELECT 1");
+        poolProperties.setTestWhileIdle(true);
         poolProperties.setValidationInterval(30000);
 
         DataSource dataSource = new DataSource();
@@ -65,5 +66,13 @@ public class DataSourceFactory {
         dataSourceMap.values().forEach(ds -> {
             ds.close();
         });
+    }
+
+    private static Integer get(Integer source, Integer def) {
+        if (source == null) {
+            return def;
+        } else {
+            return source;
+        }
     }
 }

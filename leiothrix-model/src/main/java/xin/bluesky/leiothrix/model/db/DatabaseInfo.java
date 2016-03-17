@@ -33,7 +33,11 @@ public class DatabaseInfo {
 
     private String password;
 
-    private Properties properties;
+    private Properties properties = new Properties();
+
+    private Integer poolMaxActive;
+
+    private Integer poolMaxIdle;
 
     public static String getDialectProtocol(String dialect) {
         String result = protocolMap.get(dialect.toLowerCase());
@@ -129,6 +133,22 @@ public class DatabaseInfo {
 
     public void setSchema(String schema) {
         this.schema = schema;
+    }
+
+    public Integer getPoolMaxActive() {
+        return poolMaxActive;
+    }
+
+    public void setPoolMaxActive(Integer poolMaxActive) {
+        this.poolMaxActive = poolMaxActive;
+    }
+
+    public Integer getPoolMaxIdle() {
+        return poolMaxIdle;
+    }
+
+    public void setPoolMaxIdle(Integer poolMaxIdle) {
+        this.poolMaxIdle = poolMaxIdle;
     }
 
     @Override
