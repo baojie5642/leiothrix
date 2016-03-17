@@ -5,10 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
 import xin.bluesky.leiothrix.common.util.CollectionsUtils2;
+import xin.bluesky.leiothrix.model.db.DatabaseInfo;
 import xin.bluesky.leiothrix.server.Constant;
 import xin.bluesky.leiothrix.server.conf.ServerConfigure;
 import xin.bluesky.leiothrix.server.storage.RangeStorage;
-import xin.bluesky.leiothrix.model.db.DatabaseInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,11 +49,13 @@ public class RangeSplitter implements Runnable {
             }
 
             List<String> rangeNameList = splitIdRange(minId, maxId);
+            logger.info("查得表[tableName={}]的数据范围,minId={},maxId={}", tableMeta.getTableName(), minId, maxId);
 
             rangeNameList.forEach(rangeName -> {
                 RangeStorage.createRange(taskId, tableMeta.getTableName(), rangeName);
             });
-            logger.debug("加载表[tableName={},primaryKey={}]及分片信息:{}", tableMeta.getTableName(), tableMeta.getPrimaryKey(), CollectionsUtils2.toString(rangeNameList));
+
+            logger.debug("加载表[tableName={},primaryKey={}]分片信息:{}", tableMeta.getTableName(), tableMeta.getPrimaryKey(), CollectionsUtils2.toString(rangeNameList));
         } finally {
             countDownLatch.countDown();
         }

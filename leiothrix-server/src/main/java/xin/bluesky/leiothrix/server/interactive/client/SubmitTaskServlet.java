@@ -65,7 +65,7 @@ public class SubmitTaskServlet extends HttpServlet {
             logger.warn("当前没有可用资源来执行该任务[taskId={}]", taskId);
             submitResponse = new SubmitResponse(taskId, SUCCESS, "任务提交成功,但是当前没有可用资源,请您耐心等待,勿重复提交");
             TaskStorage.setStatus(taskId, TaskStatus.UNALLOCATED);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error("任务[taskId={}]提交失败,错误信息:{}", taskId, ExceptionUtils.getStackTrace(e));
             submitResponse = new SubmitResponse(null, FAIL, e.getMessage());
             TaskStorage.setStatus(taskId, TaskStatus.ERROR);
