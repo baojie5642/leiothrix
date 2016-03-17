@@ -103,7 +103,7 @@ public class WorkerProcessorLauncher {
                 launchLog.incProcessorNum(ip);
                 availableQueue.offer(worker);
 
-                Thread.sleep(5 * 1000);//等待5秒,延缓下一个进程的启动
+                Thread.sleep(1 * 1000);//等待5秒,延缓下一个进程的启动
             } catch (Exception e) {
                 logger.error("在{}上启动worker进程失败[taskId={}],异常信息为:{}", ip, taskId, ExceptionUtils.getStackTrace(e));
             }
