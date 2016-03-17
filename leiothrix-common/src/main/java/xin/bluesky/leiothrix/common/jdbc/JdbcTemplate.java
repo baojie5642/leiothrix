@@ -1,6 +1,7 @@
 package xin.bluesky.leiothrix.common.jdbc;
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +82,7 @@ public class JdbcTemplate {
             }
 
         } catch (Exception e) {
-            logger.error("SQL:{},params:", sql, params);
+            logger.error("SQL:{},params:{}", sql, params, CollectionsUtils2.toString(params));
             throw new JdbcException(e);
         } finally {
             closeQuietly(rs, st, connection);
@@ -108,7 +109,7 @@ public class JdbcTemplate {
      * @param params
      * @return
      */
-    public List<Integer> insertBatch(String sql, List<Object[]> params) {
+    public long insertBatch(String sql, List<Object[]> params) {
         return executeBatchUpdate(sql, params);
     }
 
@@ -118,9 +119,9 @@ public class JdbcTemplate {
      *
      * @param tableName
      * @param dataList
-     * @return
+     * @return preparedStatement.executeBatch所花费的时间
      */
-    public List<Integer> insertAllColumnBatch(String tableName, List<JSONObject> dataList) {
+    public long insertAllColumnBatch(String tableName, List<JSONObject> dataList) {
         if (CollectionsUtils2.isEmpty(dataList)) {
             throw new IllegalArgumentException("dataList不能为空");
         }
@@ -154,16 +155,16 @@ public class JdbcTemplate {
         executeUpdate(sql, params);
     }
 
-    public void updateBatch(String sql, List<Object[]> params) {
-        executeBatchUpdate(sql, params);
+    public long updateBatch(String sql, List<Object[]> params) {
+        return executeBatchUpdate(sql, params);
     }
 
     public void delete(String sql, Object... params) {
         executeUpdate(sql, params);
     }
 
-    public void deleteBatch(String sql, List<Object[]> params) {
-        executeBatchUpdate(sql, params);
+    public long deleteBatch(String sql, List<Object[]> params) {
+        return executeBatchUpdate(sql, params);
     }
 
     public void executeDDL(String ddl) {
@@ -206,12 +207,14 @@ public class JdbcTemplate {
 
     }
 
-    private List<Integer> executeBatchUpdate(String sql, List<Object[]> params) {
+    private long executeBatchUpdate(String sql, List<Object[]> params) {
         logger.debug("执行插入SQL:{}", sql);
         Connection connection = null;
         PreparedStatement ps = null;
 
-        List<Integer> ids = new ArrayList();
+        StopWatch watch = new StopWatch();
+        watch.start();
+        watch.suspend();
         try {
             connection = dataSource.getConnection();
             connection.setAutoCommit(false);
@@ -225,20 +228,22 @@ public class JdbcTemplate {
                     ps.setObject(j + 1, pa[j]);
                 }
                 ps.addBatch();
+
                 if (index == BATCH_SIZE) {
+                    watch.resume();
                     ps.executeBatch();
                     index = 0;
                     connection.commit();
-                    ids.addAll(JdbcUtils.getIds(ps));
+                    watch.suspend();
                 }
             }
             if (index != 0 && index != BATCH_SIZE) {
+                watch.resume();
                 ps.executeBatch();
                 connection.commit();
-                ids.addAll(JdbcUtils.getIds(ps));
             }
 
-            return ids;
+            return watch.getTime();
         } catch (Exception e) {
             logger.error("SQL:{},params:{}", sql, CollectionsUtils2.toString(params));
             throw new JdbcException(e);
