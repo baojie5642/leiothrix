@@ -1,5 +1,6 @@
 package xin.bluesky.leiothrix.server.action;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,16 +32,16 @@ public class WorkerProcessorInvoker {
 
     public void invoke(String taskId, String mainClass, String workerIp, String workerJarPath) throws WorkerProcessorLaunchException {
 
-        String javaOpts = makeJavaOpts();
-
-        String propOpts = makePropOpts(taskId, workerIp);
-
-        String command = makeCommand(javaOpts, propOpts, workerJarPath, mainClass);
-
-        String remoteFullCommand = makeRemoteFullCommand(workerIp, command);
-        logger.info("启动远程worker进程的命令:{}", remoteFullCommand);
-
         try {
+            String javaOpts = makeJavaOpts(workerIp);
+
+            String propOpts = makePropOpts(taskId, workerIp);
+
+            String command = makeCommand(javaOpts, propOpts, workerJarPath, mainClass);
+
+            String remoteFullCommand = makeRemoteFullCommand(workerIp, command);
+            logger.info("启动远程worker进程的命令:{}", remoteFullCommand);
+
             int exitValue = Runtime.getRuntime().exec(remoteFullCommand).waitFor();
             if (exitValue != 0) {
                 throw new Exception(String.format("command=[%s],exitValue=[%s]", remoteFullCommand, exitValue));
@@ -51,18 +52,28 @@ public class WorkerProcessorInvoker {
 
     }
 
-    private String makeJavaOpts() {
+    private String makeJavaOpts(String workerIp) throws Exception {
         final String prop = System.getProperty("java.version");
         Float javaVersion = Float.parseFloat(prop.substring(0, prop.indexOf(".", prop.indexOf(".") + 1)));
 
         String javaOpts = StringUtils2.append(" -Xms", String.valueOf(WORKER_PROCESSOR_MEMORY), "m",
-                " -Xmx", String.valueOf(WORKER_PROCESSOR_MEMORY), "m ",
+                " -server -Xmx", String.valueOf(WORKER_PROCESSOR_MEMORY), "m ",
                 " -XX:NewRatio=", ServerConfigure.get("worker.processor.newratio"),
                 " -XX:SurvivorRatio=", ServerConfigure.get("worker.processor.survivorratio"));
+
+        // 根据java版本判断是否需要设置方法区,1.8以下的不需设置
         if (javaVersion.compareTo(Float.parseFloat("1.8")) < 0) {
             javaOpts = StringUtils2.append(javaOpts,
                     " -XX:MaxPermSize=", ServerConfigure.get("worker.processor.maxpermsize"), "m ");
         }
+
+        // 设置gc log
+        String userDir = getWorkerUserDir(workerIp);
+        javaOpts = StringUtils2.append(javaOpts,
+                " -XX:+UseG1GC -XX:+PrintGC -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps",
+                " -Xloggc:", userDir, "/logs/gc.log -XX:GCLogFileSize=20M -XX:+UseGCLogFileRotation -XX:NumberOfGCLogFiles=20",
+                " -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=", userDir, "/logs/dump");
+
         return javaOpts;
     }
 
@@ -81,6 +92,13 @@ public class WorkerProcessorInvoker {
 
     private String makeRemoteFullCommand(String workerIp, String command) {
         return CommandFactory.getRemoteFullCommand(command, ServerConfigure.get("worker.user"), workerIp);
+    }
+
+    private String getWorkerUserDir(String workerIp) throws Exception {
+        String command = "`echo pwd`";
+        String userDirCommand = makeRemoteFullCommand(workerIp, command);
+        Process process = Runtime.getRuntime().exec(userDirCommand);
+        return IOUtils.toString(process.getInputStream()).replace("\n", "");
     }
 
     private String getServersIp() {
