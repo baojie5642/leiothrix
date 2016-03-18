@@ -31,7 +31,7 @@ public class WorkerStorage {
 
     public static NodePhysicalInfo getPhysicalInfo(String workerIp) {
         String path = getWorkerPath(workerIp);
-        return JSON.parseObject(getDataByString(path), NodePhysicalInfo.class);
+        return JSON.parseObject(getDataString(path), NodePhysicalInfo.class);
     }
 
     public static void delete(String workerIp) {
@@ -47,7 +47,7 @@ public class WorkerStorage {
         if (!checkExists(workerNumberPath)) {
             return 0;
         } else {
-            return new Integer(getDataByString(workerNumberPath));
+            return getDataInteger(workerNumberPath);
         }
     }
 

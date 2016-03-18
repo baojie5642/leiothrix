@@ -11,7 +11,9 @@ import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
 import xin.bluesky.leiothrix.common.util.StringUtils2;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 import xin.bluesky.leiothrix.model.msg.WorkerMessageType;
+import xin.bluesky.leiothrix.model.task.partition.ExecutionStatistics;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTask;
+import xin.bluesky.leiothrix.model.task.partition.PartitionTaskProgress;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper;
 import xin.bluesky.leiothrix.worker.Settings;
 import xin.bluesky.leiothrix.worker.WorkerProcessor;
@@ -106,20 +108,20 @@ public class TaskExecutor implements Runnable {
         while (ableRunning()) {
             long endIndex = startIndex + Settings.getRangePageSize() - 1;
             if (endIndex > partitionTask.getRowEndIndex()) {
-                executePage(partitionTask, jdbcTemplate, startIndex, partitionTask.getRowEndIndex());
-                //最后一片任务不报告,以避免报告的消息在任务片结束的消息之后到达server,导致该range的状态不对
-                //progressReporter.reportProgress(partitionTask, partitionTask.getRowEndIndex());
+                ExecutionStatistics statistics = executePage(partitionTask, jdbcTemplate, startIndex, partitionTask.getRowEndIndex());
+                progressReporter.reportProgress(new PartitionTaskProgress(partitionTask, partitionTask.getRowEndIndex(), statistics));
                 break;
             } else {
-                executePage(partitionTask, jdbcTemplate, startIndex, endIndex);
-                //logger.debug("执行分页查询:tableName:{},startIndex:{},endIndex:{}", partitionTask.getTaskId(), startIndex, endIndex);
-                progressReporter.reportProgress(partitionTask, endIndex);
+                ExecutionStatistics statistics = executePage(partitionTask, jdbcTemplate, startIndex, endIndex);
+                progressReporter.reportProgress(new PartitionTaskProgress(partitionTask, partitionTask.getRowEndIndex(), statistics));
                 startIndex = endIndex + 1;
             }
         }
     }
 
-    private void executePage(PartitionTask partitionTask, JdbcTemplate jdbcTemplate, long startIndex, long endIndex) {
+    private ExecutionStatistics executePage(PartitionTask partitionTask, JdbcTemplate jdbcTemplate, long startIndex, long endIndex) {
+        ExecutionStatistics statistics = new ExecutionStatistics();
+
         StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
@@ -132,6 +134,7 @@ public class TaskExecutor implements Runnable {
         }
 
         List<JSONObject> result = jdbcTemplate.query(sql, startIndex, endIndex);
+        statistics.setHandledRecordNum(result.size());
         stopWatch.stop();
         long queryUsingTime = stopWatch.getTime();
 
@@ -140,14 +143,26 @@ public class TaskExecutor implements Runnable {
         DatabasePageDataHandler databasePageDataHandler = Settings.getConfiguration().getDatabasePageDataHandler();
         try {
             databasePageDataHandler.handle(partitionTask.getTableName(), partitionTask.getPrimaryKey(), result);
-        } catch (Exception e) {
-            databasePageDataHandler.exceptionCaught(partitionTask.getTableName(), result, e);
+            statistics.setSuccessRecordNum(result.size());
+        } catch (Throwable e) {
+            databasePageDataHandler.exceptionCaught(partitionTask.getTableName(), result, new Exception(e));
+            statistics.setFailRecordNum(result.size());
+            statistics.setFailPageName(startIndex + "-" + endIndex);
+            statistics.setExceptionStackTrace(ExceptionUtils.getStackTrace(e));
         }
         stopWatch.stop();
+
         long handleUsingTime = stopWatch.getTime();
+        long totalTime = queryUsingTime + handleUsingTime;
+
+        statistics.setQueryUsingTime(queryUsingTime);
+        statistics.setHandleUsingTime(handleUsingTime);
+        statistics.setTotalTime(totalTime);
+
         logger.info("本次任务片分页查询[table={},startIndex={},endIndex={}]查询结束,有{}行数据,查询耗时{}毫秒,处理耗时{}毫秒,总共耗时{}毫秒",
                 partitionTask.getTableName(), partitionTask.getRowStartIndex(),
-                partitionTask.getRowEndIndex(), result.size(), queryUsingTime, handleUsingTime, (queryUsingTime + handleUsingTime));
+                partitionTask.getRowEndIndex(), result.size(), queryUsingTime, handleUsingTime, totalTime);
+        return statistics;
     }
 
     private int calQueryPage(PartitionTask partitionTask) {

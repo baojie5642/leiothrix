@@ -1,5 +1,6 @@
 package xin.bluesky.leiothrix.server.storage;
 
+import xin.bluesky.leiothrix.model.task.partition.ExecutionStatistics;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTask;
 import xin.bluesky.leiothrix.server.Constant;
 import xin.bluesky.leiothrix.server.bean.status.RangeStatus;
@@ -32,6 +33,26 @@ public class RangeStorage {
      */
     public static final String NAME_TIMEOUT_FLAG = "timeoutFlag";
 
+    public static final String NAME_RANGE_RECORD_NUM = "recordNum";
+
+    public static final String NAME_STAT = "statistics";
+
+    public static final String NAME_STAT_RECORD_NUM = "handledRecordNum";
+
+    public static final String NAME_STAT_RECORD_NUM_SUCCESS = "successRecordNum";
+
+    public static final String NAME_STAT_RECORD_NUM_FAIL = "failRecordNum";
+
+    public static final String NAME_STAT_FAIL_PAGE = "failPage";
+
+    public static final String NAME_STAT_EXCEPTION_STACK_TRACE = "exceptionStackTrace";
+
+    public static final String NAME_STAT_QUERY_USING_TIME = "queryUsingTime";
+
+    public static final String NAME_STAT_HANDLE_USING_TIME = "handleUsingTime";
+
+    public static final String NAME_STAT_TOTAL_TIME = "totalTime";
+
     public static void createRange(String taskId, String tableName, String rangeName) {
         String[] r = rangeName.split(Constant.RANGE_SEPARATOR);
         final String rangePath = getRangePath(taskId, tableName, rangeName);
@@ -41,11 +62,18 @@ public class RangeStorage {
         createNodeAndSetData(rangePath, NAME_TIMEOUT_FLAG, String.valueOf(new Date().getTime()));
     }
 
+    public static void createRange(String taskId, String tableName, String rangeName, int recordNum) {
+        createRange(taskId, tableName, rangeName);
+
+        final String rangePath = getRangePath(taskId, tableName, rangeName);
+        createNodeAndSetData(rangePath, NAME_RANGE_RECORD_NUM, String.valueOf(recordNum));
+    }
+
     public static PartitionTask getPartitionTask(String taskId, String tableName, String rangeName) {
         String rangePath = getRangePath(taskId, tableName, rangeName);
 
-        int startIndex = Integer.parseInt(getDataByString(makePath(rangePath, NAME_RANGE_START_INDEX)));
-        int endIndex = Integer.parseInt(getDataByString(makePath(rangePath, NAME_RANGE_END_INDEX)));
+        int startIndex = getDataInteger(makePath(rangePath, NAME_RANGE_START_INDEX));
+        int endIndex = getDataInteger(makePath(rangePath, NAME_RANGE_END_INDEX));
         String primaryKey = TableStorage.getTableMeta(taskId, tableName).getPrimaryKey();
 
         PartitionTask partitionTask = new PartitionTask();
@@ -91,7 +119,7 @@ public class RangeStorage {
         if (!checkExists(rangeStatusPath)) {
             return RangeStatus.NOT_EXIST;
         }
-        String rangeStatus = getDataByString(rangeStatusPath);
+        String rangeStatus = getDataString(rangeStatusPath);
         return RangeStatus.valueOf(rangeStatus);
     }
 
@@ -115,5 +143,52 @@ public class RangeStorage {
 
     private static String getRangeStatusPath(String taskId, String tableName, String rangeName) {
         return makePath(getRangePath(taskId, tableName, rangeName), NAME_STATUS);
+    }
+
+    public static void updatePageExecutionStatistics(String taskId, String tableName, String rangeName, ExecutionStatistics stat) {
+        String path = getStatisticsPath(taskId, tableName, rangeName);
+
+        addIntValue(makePath(path, NAME_STAT_RECORD_NUM), stat.getHandledRecordNum());
+
+        addIntValue(makePath(path, NAME_STAT_RECORD_NUM_SUCCESS), stat.getSuccessRecordNum());
+        if (stat.getFailRecordNum() != 0) {
+            addIntValue(makePath(path, NAME_STAT_RECORD_NUM_FAIL), stat.getFailRecordNum());
+            appendValue(makePath(path, NAME_STAT_FAIL_PAGE), stat.getFailPageName() + ";");
+            appendValue(makePath(path, NAME_STAT_EXCEPTION_STACK_TRACE), stat.getExceptionStackTrace()+"\r\n");
+        }
+
+        addLongValue(makePath(path, NAME_STAT_QUERY_USING_TIME), stat.getQueryUsingTime());
+
+        addLongValue(makePath(path, NAME_STAT_HANDLE_USING_TIME), stat.getHandleUsingTime());
+
+        addLongValue(makePath(path, NAME_STAT_TOTAL_TIME), stat.getTotalTime());
+    }
+
+    public static ExecutionStatistics getExecutionStatistics(String taskId, String tableName, String rangeName) {
+        String path = getStatisticsPath(taskId, tableName, rangeName);
+
+        ExecutionStatistics stat = new ExecutionStatistics();
+
+        stat.setHandledRecordNum(getDataInteger(makePath(path, NAME_STAT_RECORD_NUM)));
+
+        stat.setSuccessRecordNum(getDataInteger(makePath(path, NAME_STAT_RECORD_NUM_SUCCESS)));
+
+        if (checkExists(makePath(path, NAME_STAT_RECORD_NUM_FAIL))) {
+            stat.setFailRecordNum(getDataInteger(makePath(path, NAME_STAT_RECORD_NUM_FAIL)));
+            stat.setFailPageName(getDataString(makePath(path, NAME_STAT_FAIL_PAGE)));
+            stat.setExceptionStackTrace(getDataString(makePath(path, NAME_STAT_EXCEPTION_STACK_TRACE)));
+        }
+
+        stat.setQueryUsingTime(getDataLong(makePath(path, NAME_STAT_QUERY_USING_TIME)));
+
+        stat.setHandleUsingTime(getDataLong(makePath(path, NAME_STAT_HANDLE_USING_TIME)));
+
+        stat.setTotalTime(getDataLong(makePath(path, NAME_STAT_TOTAL_TIME)));
+
+        return stat;
+    }
+
+    private static String getStatisticsPath(String taskId, String tableName, String rangeName) {
+        return makePath(getRangePath(taskId, tableName, rangeName), NAME_STAT);
     }
 }

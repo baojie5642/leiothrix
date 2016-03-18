@@ -115,13 +115,15 @@ public class ZookeeperUtils {
     }
 
     public static void createNodeAndSetData(String parentPath, String nodeName, String data) {
-        Preconditions.checkNotNull(nodeName, "父路径不能为空");
-        Preconditions.checkNotNull(nodeName, "节点名称不能为空");
+        createNodeAndSetData(makePath(parentPath, nodeName), data);
+    }
+
+    public static void createNodeAndSetData(String path, String data) {
+        Preconditions.checkNotNull(path, "节点名称不能为空");
         Preconditions.checkNotNull(data, "节点数据不能为空");
 
         try {
             CuratorFramework client = ZookeeperClientFactory.get();
-            String path = ZKPaths.makePath(parentPath, nodeName);
             if (client.checkExists().forPath(path) == null) {
                 client.create().creatingParentsIfNeeded().forPath(path, data.getBytes());
             } else {
@@ -129,9 +131,10 @@ public class ZookeeperUtils {
             }
         } catch (Exception e) {
             logger.error(ExceptionUtils.getStackTrace(e));
-            throw new ZookeeperException(String.format("在zookeeper上创建节点[%s](父节点为%s失败", nodeName, parentPath), e);
+            throw new ZookeeperException(String.format("在zookeeper上创建并给节点赋值[%s]失败", path), e);
         }
     }
+
 
     public static void setData(String nodePath, String data) {
         Preconditions.checkNotNull(nodePath, "节点路径不能为空");
@@ -187,11 +190,23 @@ public class ZookeeperUtils {
         }).toList();
     }
 
-    public static String getDataByString(String nodePath) {
-        return new String(getData(nodePath));
+    public static String getDataString(String nodePath) {
+        return new String(getDataByte(nodePath));
     }
 
-    public static byte[] getData(String nodePath) {
+    public static Integer getDataInteger(String nodePath) {
+        return Integer.parseInt(getDataString(nodePath));
+    }
+
+    public static Long getDataLong(String nodePath) {
+        return Long.parseLong(getDataString(nodePath));
+    }
+
+    public static Boolean getDataBoolean(String nodePath) {
+        return Boolean.parseBoolean(getDataString(nodePath));
+    }
+
+    public static byte[] getDataByte(String nodePath) {
         Preconditions.checkNotNull(nodePath, "节点路径不能为空");
 
         try {
@@ -221,5 +236,55 @@ public class ZookeeperUtils {
 
     public static CuratorFramework getClient() {
         return ZookeeperClientFactory.get();
+    }
+
+    /**
+     * 该方法不是线程安全的
+     *
+     * @param nodePath
+     */
+    public static void addIntValue(String nodePath, Integer increment) {
+        if (!checkExists(nodePath)) {
+            createNodeAndSetData(nodePath, String.valueOf(increment));
+        } else {
+            int existed = getDataInteger(nodePath);
+            int newValue = existed + increment;
+            setData(nodePath, String.valueOf(newValue));
+        }
+    }
+
+    /**
+     * 该方法不是线程安全的
+     *
+     * @param nodePath
+     */
+    public static void addLongValue(String nodePath, Long increment) {
+        if (!checkExists(nodePath)) {
+            createNodeAndSetData(nodePath, String.valueOf(increment));
+        } else {
+            long existed = getDataLong(nodePath);
+            long newValue = existed + increment;
+            setData(nodePath, String.valueOf(newValue));
+        }
+    }
+
+    /**
+     * 该方法不是线程安全的
+     *
+     * @param nodePath
+     * @param data
+     */
+    public static void appendValue(String nodePath, String data) {
+        if (!checkExists(nodePath)) {
+            createNodeAndSetData(nodePath, data);
+        } else {
+            StringBuffer buffer = new StringBuffer(getDataString(nodePath));
+            // 如果内容大于1M,就失败,为了防止有计算误差,这里取500k
+            if (buffer.length() > 500 * 1024 * 1024) {
+                return;
+            }
+            buffer.append(data);
+            setData(nodePath, buffer.toString());
+        }
     }
 }

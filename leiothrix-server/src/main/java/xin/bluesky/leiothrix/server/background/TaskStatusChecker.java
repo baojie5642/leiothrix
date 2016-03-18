@@ -103,9 +103,12 @@ public class TaskStatusChecker implements Runnable {
     private void finishTask(String taskId) {
         TaskStorage.setStatus(taskId, TaskStatus.FINISHED);
 
+        TaskStorage.logTaskFinishedTime(taskId);
+
         PartitionTaskContainer.evict(taskId);
 
         TaskFileService.deleteOnAllServers(taskId);
+
     }
 
 }

@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.model.task.TaskProgress;
 import xin.bluesky.leiothrix.model.task.TaskStatus;
+import xin.bluesky.leiothrix.server.action.TaskStatisticsCollector;
 import xin.bluesky.leiothrix.server.storage.TaskStorage;
 
 import javax.servlet.ServletException;
@@ -54,6 +55,7 @@ public class QueryProgressServlet extends HttpServlet {
                     break;
             }
 
+            progress.setDesc(new StringBuffer(progress.getDesc()).append("\r\n").append(collectInformation(taskId)).toString());
             WebUtils.respond(response, HttpStatus.SC_OK, progress.getDesc());
             logger.info(progress.getDesc());
         } catch (Exception e) {
@@ -61,5 +63,16 @@ public class QueryProgressServlet extends HttpServlet {
             WebUtils.respond(response, HttpStatus.SC_INTERNAL_SERVER_ERROR, String.format("查询任务进度[taskId=%s]失败:%s", taskId, e.getMessage()));
         }
 
+    }
+
+    private StringBuffer collectInformation(String taskId) {
+        StringBuffer buffer = new StringBuffer();
+
+        TaskStatisticsCollector collector=new TaskStatisticsCollector(taskId);
+        buffer.append(collector.collectWorkersInfo());
+
+        buffer.append(collector.collectExecutionStatistics());
+
+        return buffer;
     }
 }

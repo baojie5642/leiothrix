@@ -36,8 +36,8 @@ public class WorkerProgressReporter implements Runnable {
         reporter.submit(this);
     }
 
-    public void reportProgress(PartitionTask partitionTask, long endIndex) {
-        processingPartitionTaskQueue.offer(new PartitionTaskProgress(partitionTask, endIndex));
+    public void reportProgress(PartitionTaskProgress progress) {
+        processingPartitionTaskQueue.offer(progress);
     }
 
     public WorkerProgressReporter() {

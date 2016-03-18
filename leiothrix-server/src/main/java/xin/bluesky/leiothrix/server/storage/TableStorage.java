@@ -45,7 +45,7 @@ public class TableStorage {
             }
 
             String metaPath = makePath(getTablePath(taskId, tableName), NAME_META);
-            TableMeta tableMeta = JSON.parseObject(getDataByString(metaPath), TableMeta.class);
+            TableMeta tableMeta = JSON.parseObject(getDataString(metaPath), TableMeta.class);
             TaskTablesMetaCache.put(taskId, tableMeta);
 
             return tableMeta;
@@ -80,7 +80,7 @@ public class TableStorage {
 
     public static TableStatus getStatus(String taskId, String tableName) {
         String statusPath = getStatusPath(taskId, tableName);
-        return TableStatus.valueOf(getDataByString(statusPath));
+        return TableStatus.valueOf(getDataString(statusPath));
     }
 
     private static String getStatusPath(String taskId, String tableName) {

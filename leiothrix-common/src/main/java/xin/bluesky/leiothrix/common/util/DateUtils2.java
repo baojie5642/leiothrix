@@ -63,4 +63,20 @@ public class DateUtils2 {
 
         return String.valueOf(date.getTime());
     }
+
+    /**
+     * 将字符串(格式为:年-月-日 时:分:秒)转化为日期
+     *
+     * @param fullFormatString
+     * @return
+     */
+    public static Date string2DateFull(String fullFormatString) {
+        Date date;
+        try {
+            date = new SimpleDateFormat(FORMAT_FULL).parse(fullFormatString);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("输入字符串必须是'yyyy-MM-dd HH:mm:ss'的格式");
+        }
+        return date;
+    }
 }

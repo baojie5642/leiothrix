@@ -1,10 +1,14 @@
 package xin.bluesky.leiothrix.worker.action;
 
+import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
+import xin.bluesky.leiothrix.model.stat.TaskWorkerProcessorInfo;
 import xin.bluesky.leiothrix.worker.Settings;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
+
+import java.lang.management.ManagementFactory;
 
 import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.WORKER_NUM_DECR;
 import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.WORKER_NUM_INCR;
@@ -25,7 +29,7 @@ public class ProcessorAnnouncer {
 
     public synchronized static void decreaseProcessorNumber() {
         if (counter == 1) {
-            WorkerMessage message = new WorkerMessage(WORKER_NUM_DECR, null, Settings.getWorkerIp());
+            WorkerMessage message = new WorkerMessage(WORKER_NUM_DECR, JSON.toJSONString(getProcessInfo()), Settings.getWorkerIp());
             ServerChannel.send(message);
             logger.info("向server宣告进程结束");
             counter--;
@@ -39,10 +43,19 @@ public class ProcessorAnnouncer {
 
     public synchronized static void increaseProcessorNumber() {
         if (counter == 0) {
-            WorkerMessage message = new WorkerMessage(WORKER_NUM_INCR, null, Settings.getWorkerIp());
+            WorkerMessage message = new WorkerMessage(WORKER_NUM_INCR, JSON.toJSONString(getProcessInfo()), Settings.getWorkerIp());
             ServerChannel.send(message);
             logger.info("向server宣告进程启动");
             counter++;
         }
+    }
+
+    protected static TaskWorkerProcessorInfo getProcessInfo() {
+        String processorId = ManagementFactory.getRuntimeMXBean().getName();
+        if (processorId.indexOf("@") > 0) {
+            processorId = processorId.substring(0, processorId.indexOf("@"));
+        }
+        TaskWorkerProcessorInfo info = new TaskWorkerProcessorInfo(Settings.getTaskId(), Settings.getWorkerIp(), processorId);
+        return info;
     }
 }

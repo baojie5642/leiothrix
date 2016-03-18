@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.FluentIterable;
 import org.apache.zookeeper.CreateMode;
 import xin.bluesky.leiothrix.common.util.CollectionsUtils2;
+import xin.bluesky.leiothrix.common.util.DateUtils2;
 import xin.bluesky.leiothrix.model.task.TaskConfig;
 import xin.bluesky.leiothrix.model.task.TaskStaticInfo;
 import xin.bluesky.leiothrix.model.task.TaskStatus;
@@ -12,6 +13,7 @@ import xin.bluesky.leiothrix.server.cache.TaskStaticInfoCache;
 import xin.bluesky.leiothrix.server.lock.LockFactory;
 import xin.bluesky.leiothrix.server.storage.zk.ZookeeperUtils;
 
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -32,6 +34,18 @@ public class TaskStorage {
     public static final String NAME_STATUS = "status";
 
     public static final String NAME_RESOURCE_ENOUGH = "resourceEnough";
+
+    public static final String NAME_WORKERS = "workers";
+
+    public static final String NAME_WORKERS_PROCESSOR_START_TIME = "startTime";
+
+    public static final String NAME_WORKERS_PROCESSOR_FINISHED_TIME = "finishedTime";
+
+    public static final String NAME_STATISTICS = "statistics";
+
+    public static final String NAME_STATISTICS_TASK_START_TIME = "startTime";
+
+    public static final String NAME_STATISTICS_TASK_FINISHED_TIME = "finishedTime";
 
     /**
      * 创建一个空任务,只包含taskId节点和状态节点
@@ -190,12 +204,12 @@ public class TaskStorage {
 
             final String taskPath = getTaskPath(taskId);
 
-            taskStaticInfo.setJarPath(getDataByString(makePath(taskPath, NAME_JAR)));
+            taskStaticInfo.setJarPath(getDataString(makePath(taskPath, NAME_JAR)));
 
-            String configBody = getDataByString(makePath(getTaskPath(taskId), NAME_CONFIG_FILE));
+            String configBody = getDataString(makePath(getTaskPath(taskId), NAME_CONFIG_FILE));
             taskStaticInfo.setTaskConfig(JSON.parseObject(configBody, TaskConfig.class));
 
-            taskStaticInfo.setMainClass(getDataByString(makePath(taskPath, NAME_MAIN_CLASS)));
+            taskStaticInfo.setMainClass(getDataString(makePath(taskPath, NAME_MAIN_CLASS)));
 
             TaskStaticInfoCache.put(taskId, taskStaticInfo);
 
@@ -222,7 +236,7 @@ public class TaskStorage {
      */
     public static TaskStatus getStatus(String taskId) {
         String statusPath = getTaskStatusPath(taskId);
-        return TaskStatus.valueOf(getDataByString(statusPath));
+        return TaskStatus.valueOf(getDataString(statusPath));
     }
 
     /**
@@ -294,7 +308,7 @@ public class TaskStorage {
             return false;
         }
 
-        return Boolean.parseBoolean(ZookeeperUtils.getDataByString(nodePath));
+        return getDataBoolean(nodePath);
     }
 
     private static String getResourceEnoughPath(String taskId) {
@@ -310,5 +324,76 @@ public class TaskStorage {
     public static void setResourceEnough(String taskId, boolean b) {
         String nodePath = getResourceEnoughPath(taskId);
         setData(nodePath, String.valueOf(b));
+    }
+
+    /**
+     * 给task记录处理其的worker进程及相关信息
+     *
+     * @param taskId
+     * @param workerIp
+     * @param processorId
+     * @param time
+     */
+    public static void addWorkerProcessor(String taskId, String workerIp, String processorId, Date time) {
+        String nodePath = getWorkerProcessorPath(taskId, workerIp, processorId);
+        createNodeAndSetData(nodePath, NAME_WORKERS_PROCESSOR_START_TIME, DateUtils2.formatFull(time));
+    }
+
+    /**
+     * 给task记录处理其的worker进程的结束记录
+     *
+     * @param taskId
+     * @param workerIp
+     * @param processorId
+     * @param time
+     */
+    public static void finishedWorkerProcessor(String taskId, String workerIp, String processorId, Date time) {
+        String nodePath = makePath(getWorkerProcessorPath(taskId, workerIp, processorId), NAME_WORKERS_PROCESSOR_FINISHED_TIME);
+        setData(nodePath, DateUtils2.formatFull(time));
+    }
+
+    public static List<String> getAllTaskWorkers(String taskId) {
+        String nodePath = makePath(getTaskPath(taskId), NAME_WORKERS);
+        return getChildrenWithSimplePath(nodePath);
+    }
+
+    public static List<String> getWorkerProcessor(String taskId, String workerIp) {
+        String nodePath = makePath(getTaskPath(taskId), NAME_WORKERS, workerIp);
+        return getChildrenWithSimplePath(nodePath);
+    }
+
+    public static String getWorkerProcessorStartTime(String taskId, String workerIp, String processorId) {
+        String nodePath = makePath(getWorkerProcessorPath(taskId, workerIp, processorId), NAME_WORKERS_PROCESSOR_START_TIME);
+        return getDataString(nodePath);
+    }
+
+    public static String getWorkerProcessorFinishedTime(String taskId, String workerIp, String processorId) {
+        String nodePath = makePath(getWorkerProcessorPath(taskId, workerIp, processorId), NAME_WORKERS_PROCESSOR_FINISHED_TIME);
+        if (!checkExists(nodePath)) {
+            return null;
+        }
+        return getDataString(nodePath);
+    }
+
+    private static String getWorkerProcessorPath(String taskId, String workerIp, String processorId) {
+        return makePath(getTaskPath(taskId), NAME_WORKERS, workerIp, processorId);
+    }
+
+    /**
+     * 记录任务的启动时间
+     */
+    public static void logTaskStartTime(String taskId) {
+        String nodePath = makePath(getTaskPath(taskId), NAME_STATISTICS, NAME_STATISTICS_TASK_START_TIME);
+        setData(nodePath, DateUtils2.formatFull(new Date()));
+    }
+
+    /**
+     * 记录任务的结束时间
+     *
+     * @param taskId
+     */
+    public static void logTaskFinishedTime(String taskId) {
+        String nodePath = makePath(getTaskPath(taskId), NAME_STATISTICS, NAME_STATISTICS_TASK_FINISHED_TIME);
+        setData(nodePath, DateUtils2.formatFull(new Date()));
     }
 }
