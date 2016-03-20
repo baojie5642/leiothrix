@@ -1,7 +1,5 @@
 package xin.bluesky.leiothrix.server.util;
 
-import org.apache.commons.lang3.StringUtils;
-import xin.bluesky.leiothrix.common.net.NetUtils;
 import xin.bluesky.leiothrix.common.util.StringUtils2;
 import xin.bluesky.leiothrix.server.conf.ServerConfigure;
 
@@ -16,9 +14,6 @@ public class LeiothrixUtils {
 
     public static String getMyIp() {
         String serverIp = ServerConfigure.get("server", false);
-        if (StringUtils.isBlank(serverIp)) {
-            serverIp = NetUtils.getLocalIp();
-        }
 
         return serverIp;
     }

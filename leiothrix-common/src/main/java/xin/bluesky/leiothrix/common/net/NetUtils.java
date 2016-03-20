@@ -46,6 +46,31 @@ public class NetUtils {
         return address;
     }
 
+    public static boolean isCorrectLocalIp(String ip) {
+        if (ip.equals("localhost") || ip.equals("127.0.0.1")) {
+            throw new IllegalArgumentException("本地IP不能配置为localhost或127.0.0.1,应配置为固定IP地址");
+        }
+
+        try {
+            Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+            if (interfaces != null) {
+                while (interfaces.hasMoreElements()) {
+                    Enumeration<InetAddress> addresses = interfaces.nextElement().getInetAddresses();
+                    while (addresses.hasMoreElements()) {
+                        String address = addresses.nextElement().getHostAddress();
+                        if (address.equals(ip)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
+        return false;
+    }
+
     public static boolean pingSuccess(String remoteIp) {
         try {
             return InetAddress.getByName(remoteIp).isReachable(3000);
