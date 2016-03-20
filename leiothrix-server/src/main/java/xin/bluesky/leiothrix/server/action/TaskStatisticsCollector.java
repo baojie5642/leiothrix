@@ -58,7 +58,7 @@ public class TaskStatisticsCollector {
             workerInfo.getProcessors().forEach(p -> {
                 buffer.append(String.format("   PID=%s(启动时间[%s],", p.getPid(), p.getStartTime()))
                         .append(p.isFinished() ? String.format("结束时间[%s],", p.getFinishedTime()) : "还未结束,")
-                        .append(String.format("耗时[%s]毫秒)", p.getRunningTime() / 1000))
+                        .append(String.format("耗时[%s]秒)", p.getRunningTime() / 1000))
                         .append("\r\n");
             });
         });
@@ -77,13 +77,16 @@ public class TaskStatisticsCollector {
         for (String tableName : tableNameList) {
             int tableHandledRecordNum = 0, tableSuccessRecordNum = 0, tableFailRecordNum = 0;
             long tableTotalTime = 0, tableQueryTime = 0, tableHandleTime = 0;
-            StringBuffer tableFailPage = new StringBuffer(), tableExceptionStackTrace = new StringBuffer();
+            StringBuffer tableFailPage = new StringBuffer(), tableExceptions = new StringBuffer();
 
             List<String> rangeNameList = RangeStorage.getAllRangesByTableName(taskId, tableName);
             tmp.append(String.format("表[%s]共有%s个任务片,", tableName, rangeNameList.size()));
 
             for (String rangeName : rangeNameList) {
                 ExecutionStatistics stat = RangeStorage.getExecutionStatistics(taskId, tableName, rangeName);
+                if (stat == null) {
+                    continue;
+                }
 
                 tableHandledRecordNum += stat.getHandledRecordNum();
                 tableSuccessRecordNum += stat.getSuccessRecordNum();
@@ -96,8 +99,8 @@ public class TaskStatisticsCollector {
                 if (StringUtils.isNotBlank(stat.getFailPageName())) {
                     tableFailPage.append(stat.getFailPageName());
                 }
-                if (StringUtils.isNotBlank(stat.getExceptionStackTrace())) {
-                    tableExceptionStackTrace.append(stat.getExceptionStackTrace());
+                if (StringUtils.isNotBlank(stat.getExceptionMsg())) {
+                    tableExceptions.append(stat.getExceptionMsg());
                 }
             }
             tmp.append(String.format("处理数据%s条,成功%s条,失败%s条;处理时间%s秒,查询耗时%s秒,应用端处理耗时%s秒,平均每秒处理%s条数据.",
@@ -105,7 +108,7 @@ public class TaskStatisticsCollector {
                     tableTotalTime / 1000, tableQueryTime / 1000, tableHandleTime / 1000,
                     tableHandledRecordNum / (tableTotalTime / 1000)));
             if (tableFailPage.length() > 0) {
-                tmp.append(String.format("失败任务片[%s],异常信息:\r\n%s", tableFailPage, tableExceptionStackTrace));
+                tmp.append(String.format("失败任务片[%s],异常信息:\r\n%s", tableFailPage, tableExceptions));
             }
             tmp.append("\r\n");
 

@@ -148,7 +148,7 @@ public class TaskExecutor implements Runnable {
             databasePageDataHandler.exceptionCaught(partitionTask.getTableName(), result, new Exception(e));
             statistics.setFailRecordNum(result.size());
             statistics.setFailPageName(startIndex + "-" + endIndex);
-            statistics.setExceptionStackTrace(ExceptionUtils.getStackTrace(e));
+            statistics.setExceptionMsg(e.getMessage());
         }
         stopWatch.stop();
 

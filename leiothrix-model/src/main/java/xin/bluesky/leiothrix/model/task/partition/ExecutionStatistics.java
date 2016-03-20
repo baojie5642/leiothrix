@@ -13,7 +13,7 @@ public class ExecutionStatistics {
 
     private String failPageName;
 
-    private String exceptionStackTrace;
+    private String exceptionMsg;
 
     private long queryUsingTime;
 
@@ -24,12 +24,12 @@ public class ExecutionStatistics {
     public ExecutionStatistics() {
     }
 
-    public ExecutionStatistics(int handledRecordNum, int successRecordNum, int failRecordNum, String failPageName, String exceptionStackTrace, long queryUsingTime, long handleUsingTime, long totalTime) {
+    public ExecutionStatistics(int handledRecordNum, int successRecordNum, int failRecordNum, String failPageName, String exceptionMsg, long queryUsingTime, long handleUsingTime, long totalTime) {
         this.handledRecordNum = handledRecordNum;
         this.successRecordNum = successRecordNum;
         this.failRecordNum = failRecordNum;
         this.failPageName = failPageName;
-        this.exceptionStackTrace = exceptionStackTrace;
+        this.exceptionMsg = exceptionMsg;
         this.queryUsingTime = queryUsingTime;
         this.handleUsingTime = handleUsingTime;
         this.totalTime = totalTime;
@@ -43,12 +43,12 @@ public class ExecutionStatistics {
         this.handledRecordNum = handledRecordNum;
     }
 
-    public String getExceptionStackTrace() {
-        return exceptionStackTrace;
+    public String getExceptionMsg() {
+        return exceptionMsg;
     }
 
-    public void setExceptionStackTrace(String exceptionStackTrace) {
-        this.exceptionStackTrace = exceptionStackTrace;
+    public void setExceptionMsg(String exceptionMsg) {
+        this.exceptionMsg = exceptionMsg;
     }
 
     public long getQueryUsingTime() {

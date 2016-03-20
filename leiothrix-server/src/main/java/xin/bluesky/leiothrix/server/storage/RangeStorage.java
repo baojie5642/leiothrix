@@ -154,7 +154,7 @@ public class RangeStorage {
         if (stat.getFailRecordNum() != 0) {
             addIntValue(makePath(path, NAME_STAT_RECORD_NUM_FAIL), stat.getFailRecordNum());
             appendValue(makePath(path, NAME_STAT_FAIL_PAGE), stat.getFailPageName() + ";");
-            appendValue(makePath(path, NAME_STAT_EXCEPTION_STACK_TRACE), stat.getExceptionStackTrace()+"\r\n");
+            appendValue(makePath(path, NAME_STAT_EXCEPTION_STACK_TRACE), stat.getExceptionMsg() + "\r\n");
         }
 
         addLongValue(makePath(path, NAME_STAT_QUERY_USING_TIME), stat.getQueryUsingTime());
@@ -166,6 +166,9 @@ public class RangeStorage {
 
     public static ExecutionStatistics getExecutionStatistics(String taskId, String tableName, String rangeName) {
         String path = getStatisticsPath(taskId, tableName, rangeName);
+        if (!checkExists(path)) {
+            return null;
+        }
 
         ExecutionStatistics stat = new ExecutionStatistics();
 
@@ -176,7 +179,7 @@ public class RangeStorage {
         if (checkExists(makePath(path, NAME_STAT_RECORD_NUM_FAIL))) {
             stat.setFailRecordNum(getDataInteger(makePath(path, NAME_STAT_RECORD_NUM_FAIL)));
             stat.setFailPageName(getDataString(makePath(path, NAME_STAT_FAIL_PAGE)));
-            stat.setExceptionStackTrace(getDataString(makePath(path, NAME_STAT_EXCEPTION_STACK_TRACE)));
+            stat.setExceptionMsg(getDataString(makePath(path, NAME_STAT_EXCEPTION_STACK_TRACE)));
         }
 
         stat.setQueryUsingTime(getDataLong(makePath(path, NAME_STAT_QUERY_USING_TIME)));

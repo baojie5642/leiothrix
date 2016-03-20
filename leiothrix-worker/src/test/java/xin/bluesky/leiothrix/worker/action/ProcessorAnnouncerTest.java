@@ -12,7 +12,7 @@ public class ProcessorAnnouncerTest {
 
     @Test
     public void should_get_processor_id() throws Exception {
-        assertThat(ProcessorAnnouncer.getProcessorId(), notNullValue());
+        assertThat(ProcessorAnnouncer.getProcessInfo().getProcessorId(), notNullValue());
     }
 
 }

@@ -31,7 +31,7 @@ public class RangeStorageTest extends StorageContainerDependency {
         assertThat(result.getSuccessRecordNum(), is(230));
         assertThat(result.getFailRecordNum(), is(70));
         assertThat(result.getFailPageName(), is("0-50;0-20;"));
-        assertThat(result.getExceptionStackTrace(), is("page1-exception\r\npage2-exception\r\n"));
+        assertThat(result.getExceptionMsg(), is("page1-exception\r\npage2-exception\r\n"));
         assertThat(result.getTotalTime(), is(80 * 1000l));
         assertThat(result.getQueryUsingTime(), is(20 * 1000l));
         assertThat(result.getHandleUsingTime(), is(40 * 1000l));
@@ -55,7 +55,7 @@ public class RangeStorageTest extends StorageContainerDependency {
         assertThat(result.getSuccessRecordNum(), is(300));
         assertThat(result.getFailRecordNum(), is(0));
         assertThat(result.getFailPageName(), nullValue());
-        assertThat(result.getExceptionStackTrace(), nullValue());
+        assertThat(result.getExceptionMsg(), nullValue());
         assertThat(result.getTotalTime(), is(80 * 1000l));
         assertThat(result.getQueryUsingTime(), is(20 * 1000l));
         assertThat(result.getHandleUsingTime(), is(40 * 1000l));
