@@ -1,5 +1,6 @@
 package xin.bluesky.leiothrix.common.net;
 
+import xin.bluesky.leiothrix.common.net.exception.CommandException;
 import xin.bluesky.leiothrix.common.net.exception.PingException;
 import xin.bluesky.leiothrix.common.net.exception.SshException;
 
@@ -60,6 +61,16 @@ public class NetUtils {
             return exitValue == 0;
         } catch (InterruptedException | IOException e) {
             throw new SshException(String.format("无密ssh到远程主机[ip=%s,username=%]失败,请检查是否配置了无密登陆", remoteIp, username));
+        }
+    }
+
+    public static boolean killForce(String remoteIp, String username, String pid) {
+        String command = String.format("ssh -l %s %s %s", username, remoteIp, "kill -9 " + pid);
+        try {
+            int exitValue = Runtime.getRuntime().exec(command).waitFor();
+            return exitValue == 0;
+        } catch (Exception e) {
+            throw new CommandException(String.format("在%s上以%s用户执行[kill -9 %s]命令时出错", remoteIp, username, pid), e);
         }
     }
 }
