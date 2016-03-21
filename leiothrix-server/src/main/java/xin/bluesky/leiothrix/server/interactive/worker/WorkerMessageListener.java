@@ -16,7 +16,7 @@ import java.util.concurrent.Executors;
 
 /**
  * @author 张轲
- * worker.processor.threadnum.factor
+ *         worker.processor.threadnum.factor
  */
 public class WorkerMessageListener implements Runnable {
 
@@ -43,7 +43,7 @@ public class WorkerMessageListener implements Runnable {
                         @Override
                         protected void initChannel(Channel ch) throws Exception {
                             ch.pipeline()
-                                    .addLast(new LineBasedFrameDecoder(2048))
+                                    .addLast(new LineBasedFrameDecoder(8192))
                                     .addLast("encoder", new StringEncoder())
                                     .addLast("decoder", new StringDecoder())
                                     .addLast("handler", new WorkerChannelInboundHandler());

@@ -1,13 +1,12 @@
-package xin.bluesky.leiothrix.worker.action;
+package xin.bluesky.leiothrix.worker.executor;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.bluesky.leiothrix.common.net.NetUtils;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 import xin.bluesky.leiothrix.model.msg.WorkerMessageType;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper;
-import xin.bluesky.leiothrix.worker.Settings;
+import xin.bluesky.leiothrix.worker.conf.Settings;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
 
 import java.util.concurrent.BlockingQueue;

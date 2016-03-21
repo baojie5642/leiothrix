@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * @author 张轲
- * worker.processor.threadnum.factor
+ *         worker.processor.threadnum.factor
  */
 public class WorkerMessageType implements Serializable {
 
@@ -12,11 +12,9 @@ public class WorkerMessageType implements Serializable {
 
     public static final String FINISHED_TASK = "finishedTask";
 
-    public static final String WORKER_PROGRESS_REPORT = "workerProgressReport";
+    public static final String EXECUTE_PROGRESS_REPORT = "workerProgressReport";
 
-    public static final String WORKER_NUM_INCR = "workerNumberIncr";
-
-    public static final String WORKER_NUM_DECR = "workerNumberDecr";
+    public static final String PROCESSOR_ANNOUNCE = "workerNumberIncr";
 
     public static final String PING = "ping";
 }

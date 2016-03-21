@@ -5,7 +5,11 @@ import java.util.Date;
 /**
  * @author 张轲
  */
-public class TaskWorkerProcessorInfo {
+public class ProcessorInfo {
+
+    public static final String STEP_STARTUP = "startUp";
+
+    public static final String STEP_EXIT = "exit";
 
     private String taskId;
 
@@ -13,12 +17,18 @@ public class TaskWorkerProcessorInfo {
 
     private String processorId;
 
+    private String step;
+
+    private boolean success;
+
+    private String errorMsg;
+
     private Date time = new Date();
 
-    public TaskWorkerProcessorInfo() {
+    public ProcessorInfo() {
     }
 
-    public TaskWorkerProcessorInfo(String taskId, String workerIp, String processorId) {
+    public ProcessorInfo(String taskId, String workerIp, String processorId) {
         this.taskId = taskId;
         this.workerIp = workerIp;
         this.processorId = processorId;
@@ -54,5 +64,29 @@ public class TaskWorkerProcessorInfo {
 
     public void setTime(Date time) {
         this.time = time;
+    }
+
+    public boolean isSuccess() {
+        return success;
+    }
+
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    public String getErrorMsg() {
+        return errorMsg;
+    }
+
+    public void setErrorMsg(String errorMsg) {
+        this.errorMsg = errorMsg;
+    }
+
+    public String getStep() {
+        return step;
+    }
+
+    public void setStep(String step) {
+        this.step = step;
     }
 }

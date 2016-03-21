@@ -1,4 +1,4 @@
-package xin.bluesky.leiothrix.worker.action;
+package xin.bluesky.leiothrix.worker.executor;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -15,10 +15,10 @@ import xin.bluesky.leiothrix.model.task.partition.ExecutionStatistics;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTask;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTaskProgress;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper;
-import xin.bluesky.leiothrix.worker.Settings;
+import xin.bluesky.leiothrix.worker.conf.Settings;
 import xin.bluesky.leiothrix.worker.WorkerProcessor;
 import xin.bluesky.leiothrix.worker.api.DatabasePageDataHandler;
-import xin.bluesky.leiothrix.worker.background.WorkerProgressReporter;
+import xin.bluesky.leiothrix.worker.report.WorkerProgressReporter;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
 
 import java.util.List;

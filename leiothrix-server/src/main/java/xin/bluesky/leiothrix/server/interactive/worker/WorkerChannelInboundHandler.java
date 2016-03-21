@@ -27,9 +27,8 @@ public class WorkerChannelInboundHandler extends ChannelInboundHandlerAdapter {
     static {
         map.put(WorkerMessageType.ACQUIRE_TASK, new AcquireTaskHandler());
         map.put(WorkerMessageType.FINISHED_TASK, new FinishedPartitionTaskHandler());
-        map.put(WorkerMessageType.WORKER_PROGRESS_REPORT, new WorkerProgressReportHandler());
-        map.put(WorkerMessageType.WORKER_NUM_INCR, new WorkerProcessorNumIncrHandler());
-        map.put(WorkerMessageType.WORKER_NUM_DECR, new WorkerProcessorNumDecrHandler());
+        map.put(WorkerMessageType.EXECUTE_PROGRESS_REPORT, new WorkerProgressReportHandler());
+        map.put(WorkerMessageType.PROCESSOR_ANNOUNCE, new ProcessorAnnounceHandler());
         map.put(WorkerMessageType.PING, new PingHandler());
     }
 

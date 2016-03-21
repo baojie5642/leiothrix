@@ -1,4 +1,4 @@
-package xin.bluesky.leiothrix.worker.action;
+package xin.bluesky.leiothrix.worker.executor;
 
 import org.junit.Test;
 
@@ -12,7 +12,7 @@ public class ProcessorAnnouncerTest {
 
     @Test
     public void should_get_processor_id() throws Exception {
-        assertThat(ProcessorAnnouncer.getProcessInfo().getProcessorId(), notNullValue());
+        assertThat(ProcessorAnnouncer.getStaticProcessInfo().getProcessorId(), notNullValue());
     }
 
 }

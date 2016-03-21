@@ -1,13 +1,11 @@
-package xin.bluesky.leiothrix.worker.background;
+package xin.bluesky.leiothrix.worker.report;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.bluesky.leiothrix.common.net.NetUtils;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
-import xin.bluesky.leiothrix.model.task.partition.PartitionTask;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTaskProgress;
-import xin.bluesky.leiothrix.worker.Settings;
+import xin.bluesky.leiothrix.worker.conf.Settings;
 import xin.bluesky.leiothrix.worker.WorkerProcessor;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
 
@@ -17,7 +15,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingDeque;
 
 import static com.alibaba.fastjson.JSON.toJSONString;
-import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.WORKER_PROGRESS_REPORT;
+import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.EXECUTE_PROGRESS_REPORT;
 
 /**
  * @author 张轲
@@ -50,7 +48,7 @@ public class WorkerProgressReporter implements Runnable {
             try {
                 PartitionTaskProgress progress = processingPartitionTaskQueue.take();
                 final String localIp = Settings.getWorkerIp();
-                WorkerMessage message = new WorkerMessage(WORKER_PROGRESS_REPORT, toJSONString(progress), localIp);
+                WorkerMessage message = new WorkerMessage(EXECUTE_PROGRESS_REPORT, toJSONString(progress), localIp);
                 ServerChannel.send(message);
                 logger.debug("worker:{}执行任务片[taskId={},tableName={},rangeName={}],当前执行到{}",
                         localIp, progress.getPartitionTask().getTaskId(), progress.getPartitionTask().getTableName(), progress.getPartitionTask().getPartitionRangeName(), progress.getEndIndex());

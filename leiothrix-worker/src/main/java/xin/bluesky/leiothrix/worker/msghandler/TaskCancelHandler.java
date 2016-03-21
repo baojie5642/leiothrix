@@ -5,7 +5,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.worker.ServerMessageHandler;
-import xin.bluesky.leiothrix.worker.Settings;
+import xin.bluesky.leiothrix.worker.conf.Settings;
 import xin.bluesky.leiothrix.worker.WorkerProcessor;
 
 /**

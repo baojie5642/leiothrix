@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper;
 import xin.bluesky.leiothrix.worker.ServerMessageHandler;
-import xin.bluesky.leiothrix.worker.action.TaskContainer;
+import xin.bluesky.leiothrix.worker.executor.TaskContainer;
 
 import static xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper.*;
 

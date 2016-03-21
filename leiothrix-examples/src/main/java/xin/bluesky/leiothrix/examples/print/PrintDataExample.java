@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.worker.api.DatabasePageDataHandler;
 import xin.bluesky.leiothrix.common.util.CollectionsUtils2;
-import xin.bluesky.leiothrix.worker.WorkerConfiguration;
+import xin.bluesky.leiothrix.worker.conf.WorkerConfiguration;
 import xin.bluesky.leiothrix.worker.WorkerProcessor;
 
 import java.util.List;

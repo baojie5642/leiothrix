@@ -8,6 +8,8 @@ import xin.bluesky.leiothrix.server.storage.zk.ZookeeperClientFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
@@ -44,6 +46,18 @@ public class LockFactory {
         return lock;
     }
 
+    private static ReentrantLock getReentrantLock(String key, Map<String, ReentrantLock> lockMap) {
+        ReentrantLock lock = lockMap.get(key);
+        if (lock == null) {
+            final ReentrantLock newLock = new ReentrantLock();
+            lock = lockMap.putIfAbsent(key, newLock);
+            if (lock == null) {
+                lock = newLock;
+            }
+        }
+        return lock;
+    }
+
     public static ReentrantReadWriteLock getTaskTablesCacheLock(String taskId) {
         return getLock(taskId, taskTablesCacheLock);
     }
@@ -62,4 +76,5 @@ public class LockFactory {
                 StringUtils2.append(PARTITION_TASK_FIND_LOCK_PATH, "/", taskId, "/taskfind"));
         return mutex;
     }
+
 }

@@ -3,7 +3,7 @@ package xin.bluesky.leiothrix.worker.background;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.worker.WorkerProcessor;
-import xin.bluesky.leiothrix.worker.action.ProcessorAnnouncer;
+import xin.bluesky.leiothrix.worker.executor.ProcessorAnnouncer;
 
 /**
  * 在worker进程关闭的时候,很可能由于各种原因导致不能被正常KILL(比如内存溢出),此时ShutdownHook做不了太多的事情,
@@ -19,7 +19,7 @@ public class ShutdownHook extends Thread {
     @Override
     public void run() {
         logger.info("执行ShutdownHook");
-        ProcessorAnnouncer.decreaseProcessorNumber();
+        ProcessorAnnouncer.announceExit();
 
         try {
             WorkerProcessor.getProcessor().shutdown();

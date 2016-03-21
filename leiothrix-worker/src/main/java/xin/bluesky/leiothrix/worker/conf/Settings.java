@@ -1,4 +1,4 @@
-package xin.bluesky.leiothrix.worker;
+package xin.bluesky.leiothrix.worker.conf;
 
 /**
  * @author 张轲

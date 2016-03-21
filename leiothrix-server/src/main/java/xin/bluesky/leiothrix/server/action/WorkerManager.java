@@ -3,7 +3,7 @@ package xin.bluesky.leiothrix.server.action;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.util.StringUtils2;
-import xin.bluesky.leiothrix.server.action.exception.WorkerProcessorLaunchException;
+import xin.bluesky.leiothrix.server.action.exception.ProcessorLaunchException;
 import xin.bluesky.leiothrix.server.bean.node.NodeInfo;
 import xin.bluesky.leiothrix.server.bean.node.NodePhysicalInfo;
 import xin.bluesky.leiothrix.server.conf.ServerConfigure;
@@ -82,14 +82,14 @@ public class WorkerManager {
         String mkdirCommand = CommandFactory.getRemoteFullCommand(
                 StringUtils2.append("mkdir -p ", workerJarDir), ServerConfigure.get("worker.user"), workerIp);
         if (Runtime.getRuntime().exec(mkdirCommand).waitFor() != 0) {
-            throw new WorkerProcessorLaunchException(String.format("在worker[%s]上创建目录时失败,command:%s", workerIp, mkdirCommand));
+            throw new ProcessorLaunchException(String.format("在worker[%s]上创建目录时失败,command:%s", workerIp, mkdirCommand));
         }
 
         // 拷贝jar到worker的相应目录
         String scpCommand = StringUtils2.append("scp ", absoluteJarName, " ", ServerConfigure.get("worker.user"), "@", workerIp, ":", workerJarDir, File.separator);
         int exitValue = Runtime.getRuntime().exec(scpCommand).waitFor();
         if (exitValue != 0) {
-            throw new WorkerProcessorLaunchException(String.format("在拷贝jar文件到worker[%s]时失败,scpCommand:%s,exitValue=[%s]",
+            throw new ProcessorLaunchException(String.format("在拷贝jar文件到worker[%s]时失败,scpCommand:%s,exitValue=[%s]",
                     workerIp, scpCommand, exitValue));
         }
 

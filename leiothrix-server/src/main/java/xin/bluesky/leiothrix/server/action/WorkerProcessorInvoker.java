@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.util.CollectionsUtils2;
 import xin.bluesky.leiothrix.common.util.StringUtils2;
-import xin.bluesky.leiothrix.server.action.exception.WorkerProcessorLaunchException;
+import xin.bluesky.leiothrix.server.action.exception.ProcessorLaunchException;
 import xin.bluesky.leiothrix.server.bean.node.NodeInfo;
 import xin.bluesky.leiothrix.server.bean.node.NodePhysicalInfo;
 import xin.bluesky.leiothrix.server.conf.ServerConfigure;
@@ -30,7 +30,7 @@ public class WorkerProcessorInvoker {
 
     protected static final int WORKER_MEMORY_REDUNDANCY = ServerConfigure.get("worker.memory.redundancy", Integer.class);
 
-    public void invoke(String taskId, String mainClass, String workerIp, String workerJarPath) throws WorkerProcessorLaunchException {
+    public void invoke(String taskId, String mainClass, String workerIp, String workerJarPath) throws ProcessorLaunchException {
 
         try {
             String javaOpts = makeJavaOpts(workerIp);
@@ -47,7 +47,7 @@ public class WorkerProcessorInvoker {
                 throw new Exception(String.format("command=[%s],exitValue=[%s]", remoteFullCommand, exitValue));
             }
         } catch (Exception e) {
-            throw new WorkerProcessorLaunchException(String.format("在%s启动worker进程时失败", workerIp), e);
+            throw new ProcessorLaunchException(String.format("在%s启动worker进程时失败", workerIp), e);
         }
 
     }

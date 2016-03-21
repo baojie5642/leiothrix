@@ -1,22 +1,24 @@
 package xin.bluesky.leiothrix.worker;
 
-import com.google.common.base.Preconditions;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
-import xin.bluesky.leiothrix.worker.action.ExecutorsPool;
-import xin.bluesky.leiothrix.worker.action.ProcessorAnnouncer;
-import xin.bluesky.leiothrix.worker.action.TaskExecutor;
-import xin.bluesky.leiothrix.worker.background.WorkerProgressReporter;
 import xin.bluesky.leiothrix.worker.background.ShutdownHook;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
+import xin.bluesky.leiothrix.worker.conf.SettingInit;
+import xin.bluesky.leiothrix.worker.conf.Settings;
+import xin.bluesky.leiothrix.worker.conf.WorkerConfiguration;
+import xin.bluesky.leiothrix.worker.executor.ExecutorsPool;
+import xin.bluesky.leiothrix.worker.executor.ProcessorAnnouncer;
+import xin.bluesky.leiothrix.worker.executor.TaskExecutor;
+import xin.bluesky.leiothrix.worker.report.WorkerProgressReporter;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
-import static xin.bluesky.leiothrix.common.util.StringUtils2.COMMA;
 import static xin.bluesky.leiothrix.worker.WorkerProcessor.Status.*;
 
 /**
@@ -38,6 +40,8 @@ public class WorkerProcessor {
 
     private CountDownLatch countDownLatch;
 
+    private WorkerConfiguration configuration;
+
     static {
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {
             logger.error("线程[id={},name={}]出现异常:{}", t.getId(), t.getName(), ExceptionUtils.getStackTrace(e));
@@ -53,7 +57,13 @@ public class WorkerProcessor {
             processor = this;
         }
 
-        initSettings(configuration);
+        this.configuration = configuration;
+
+        init();
+    }
+
+    private void init() {
+        SettingInit.init(configuration);
 
         this.executorsPool = new ExecutorsPool();
 
@@ -64,39 +74,20 @@ public class WorkerProcessor {
         this.status = NOT_STARTED;
     }
 
-    private void initSettings(WorkerConfiguration configuration) {
-        Settings.setConfiguration(configuration);
-
-        String serverIpConfig = System.getProperty("server.ip");
-        Preconditions.checkNotNull(serverIpConfig, "需要配置server地址");
-        Settings.setServersIp(serverIpConfig.split(COMMA));
-
-        Settings.setServerPort(Integer.parseInt(System.getProperty("server.port")));
-
-        Settings.setWorkerIp(System.getProperty("worker.ip"));
-
-        Settings.setTaskId(System.getProperty("taskId"));
-
-        Settings.setRangePageSize(Integer.parseInt(System.getProperty("worker.range.pagesize")));
-
-        Settings.setThreadNumFactor(Integer.parseInt(System.getProperty("worker.processor.threadnum.factor")));
-    }
-
-    public void start() throws Exception {
-        lock.lock();
-        if (status != NOT_STARTED) {
-            lock.unlock();
-            throw new Exception("worker进程已经启动/或已关闭,不能再次启动");
-        }
-
-        logger.info("worker进程开始启动");
-        status = RUNNING;
-        lock.unlock();
+    public void start() {
 
         try {
-            ServerChannel.connect(Settings.getServersIp(), Settings.getServerPort());
+            lock.lock();
+            if (status != NOT_STARTED) {
+                lock.unlock();
+                throw new Exception("worker进程已经启动/或已关闭,不能再次启动");
+            }
 
-            ProcessorAnnouncer.increaseProcessorNumber();
+            logger.info("worker进程开始启动");
+            status = RUNNING;
+            lock.unlock();
+
+            ServerChannel.connect(Settings.getServersIp(), Settings.getServerPort());
 
             Runtime.getRuntime().addShutdownHook(new ShutdownHook());
 
@@ -104,10 +95,12 @@ public class WorkerProcessor {
 
             progressReporter.start();
 
+            ProcessorAnnouncer.announceStartupSuccess();
+
             awaitTermination();
-        } catch (Exception e) {
+        } catch (Throwable e) {
             logger.error("worker启动过程中出现异常:{}", getStackTrace(e));
-            throw e;
+            ProcessorAnnouncer.announceStartupFail(StringEscapeUtils.escapeJava(ExceptionUtils.getStackTrace(e)));
         } finally {
             shutdown();
         }
@@ -128,7 +121,7 @@ public class WorkerProcessor {
         return status == RUNNING;
     }
 
-    public void shutdown() throws Exception {
+    public void shutdown() {
         lock.lock();
         if (!isRunning()) {
             lock.unlock();
@@ -141,20 +134,26 @@ public class WorkerProcessor {
 
         status = SHUTDOWN;
 
-        executorsPool.shutdown();
+        try {
+            executorsPool.shutdown();
 
-        progressReporter.shutdown();
+            progressReporter.shutdown();
 
-        ProcessorAnnouncer.decreaseProcessorNumber();
+            JdbcTemplate.destroy();
 
-        JdbcTemplate.destroy();
+            ServerChannel.shutdown();
 
-        Thread.sleep(3 * 1000);
+            Thread.sleep(3 * 1000);
 
-        ServerChannel.shutdown();
+            logger.info("worker进程成功退出");
 
-        logger.info("worker进程成功退出");
-//        System.exit(0);
+            ProcessorAnnouncer.announceExit();
+        } catch (Throwable e) {
+            String errorMsg = StringEscapeUtils.escapeJava(ExceptionUtils.getStackTrace(e));
+            ProcessorAnnouncer.announceExit(errorMsg);
+        }
+
+
     }
 
     public Status getStatus() {

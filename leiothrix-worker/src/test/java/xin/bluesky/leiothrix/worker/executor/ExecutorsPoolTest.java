@@ -1,7 +1,7 @@
-package xin.bluesky.leiothrix.worker.action;
+package xin.bluesky.leiothrix.worker.executor;
 
 import org.junit.Test;
-import xin.bluesky.leiothrix.worker.Settings;
+import xin.bluesky.leiothrix.worker.conf.Settings;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;

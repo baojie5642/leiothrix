@@ -1,9 +1,9 @@
-package xin.bluesky.leiothrix.worker.action;
+package xin.bluesky.leiothrix.worker.executor;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.bluesky.leiothrix.worker.Settings;
+import xin.bluesky.leiothrix.worker.conf.Settings;
 
 import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;

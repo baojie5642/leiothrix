@@ -10,9 +10,10 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 import xin.bluesky.leiothrix.model.task.TaskStaticInfo;
 import xin.bluesky.leiothrix.server.action.exception.NoResourceException;
-import xin.bluesky.leiothrix.server.action.exception.WorkerProcessorLaunchException;
+import xin.bluesky.leiothrix.server.action.exception.ProcessorLaunchException;
 import xin.bluesky.leiothrix.server.bean.node.NodeInfo;
 import xin.bluesky.leiothrix.server.bean.node.NodePhysicalInfo;
+import xin.bluesky.leiothrix.server.lock.ProcessorStartingHolder;
 import xin.bluesky.leiothrix.server.storage.TaskStorage;
 
 import java.util.UUID;
@@ -80,13 +81,25 @@ public class WorkerProcessorLauncherTest {
 
         // when
         PowerMockito.mockStatic(TaskStorage.class);
-        Mockito.when(TaskStorage.getTaskStaticInfo(anyString())).thenReturn(new TaskStaticInfo("1"));
+        when(TaskStorage.getTaskStaticInfo(anyString())).thenReturn(new TaskStaticInfo("1"));
         when(workerManager.getAllWorkerInfoWithInitialMemory()).thenReturn(ImmutableList.of(worker1, worker2));
         when(workerProcessorInvoker.calAvailableProcessNum(worker1)).thenReturn(1);
         when(workerProcessorInvoker.calAvailableProcessNum(worker2)).thenReturn(2);
-        launcher = new WorkerProcessorLauncher("1");
+        launcher = new WorkerProcessorLauncher(taskId);
         launcher.setWorkerManager(workerManager);
         launcher.setWorkerProcessorInvoker(workerProcessorInvoker);
+
+        Thread t = new Thread(() -> {
+            try {
+                Thread.sleep(2*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            ProcessorStartingHolder holder = ProcessorStartingHolder.get(taskId);
+            holder.setRunningSuccess(true);
+            holder.unHold();
+        });
+        t.start();
 
         LaunchLog log = launcher.launch();
         assertThat(log.getTotalProcessorNum(), is(3));
@@ -113,7 +126,7 @@ public class WorkerProcessorLauncherTest {
         launcher.launch();
     }
 
-    @Test(expected = WorkerProcessorLaunchException.class)
+    @Test(expected = ProcessorLaunchException.class)
     public void should_throw_launch_exception_if_launch_fail() throws Exception {
         // given
         String workerIp1 = "192.168.100.1";
@@ -125,7 +138,7 @@ public class WorkerProcessorLauncherTest {
         Mockito.when(TaskStorage.getTaskStaticInfo(anyString())).thenReturn(new TaskStaticInfo("1"));
         when(workerManager.getAllWorkerInfoWithInitialMemory()).thenReturn(ImmutableList.of(worker1));
         when(workerProcessorInvoker.calAvailableProcessNum(worker1)).thenReturn(1);
-        doThrow(new WorkerProcessorLaunchException()).when(workerProcessorInvoker).invoke(anyString(), anyString(), anyString(), anyString());
+        doThrow(new ProcessorLaunchException()).when(workerProcessorInvoker).invoke(anyString(), anyString(), anyString(), anyString());
         launcher = new WorkerProcessorLauncher("1");
         launcher.setWorkerManager(workerManager);
         launcher.setWorkerProcessorInvoker(workerProcessorInvoker);

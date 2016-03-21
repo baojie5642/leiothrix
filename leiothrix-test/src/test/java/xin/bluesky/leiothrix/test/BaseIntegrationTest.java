@@ -11,7 +11,7 @@ import xin.bluesky.leiothrix.server.Constant;
 import xin.bluesky.leiothrix.server.Server;
 import xin.bluesky.leiothrix.server.conf.ServerConfigure;
 import xin.bluesky.leiothrix.server.storage.zk.EmbeddedZookeeperServer;
-import xin.bluesky.leiothrix.worker.WorkerConfiguration;
+import xin.bluesky.leiothrix.worker.conf.WorkerConfiguration;
 import xin.bluesky.leiothrix.worker.WorkerProcessor;
 import xin.bluesky.leiothrix.worker.api.DatabasePageDataHandler;
 

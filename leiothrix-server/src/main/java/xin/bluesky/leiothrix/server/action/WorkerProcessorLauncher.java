@@ -9,13 +9,16 @@ import xin.bluesky.leiothrix.model.task.TaskStaticInfo;
 import xin.bluesky.leiothrix.model.task.TaskStatus;
 import xin.bluesky.leiothrix.server.action.exception.NoResourceException;
 import xin.bluesky.leiothrix.server.action.exception.NotAllowedLaunchException;
-import xin.bluesky.leiothrix.server.action.exception.WorkerProcessorLaunchException;
+import xin.bluesky.leiothrix.server.action.exception.ProcessorLaunchException;
+import xin.bluesky.leiothrix.server.action.exception.ProcessorRunningException;
 import xin.bluesky.leiothrix.server.bean.node.NodeInfo;
+import xin.bluesky.leiothrix.server.lock.ProcessorStartingHolder;
 import xin.bluesky.leiothrix.server.storage.TaskStorage;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.collect.FluentIterable.from;
 import static xin.bluesky.leiothrix.server.action.WorkerProcessorInvoker.WORKER_PROCESSOR_MEMORY;
@@ -48,7 +51,7 @@ public class WorkerProcessorLauncher {
         this.taskId = taskId;
     }
 
-    public LaunchLog launch() throws WorkerProcessorLaunchException, NoResourceException, NotAllowedLaunchException {
+    public LaunchLog launch() throws ProcessorLaunchException, NoResourceException, NotAllowedLaunchException, ProcessorRunningException {
 
         before();
 
@@ -82,8 +85,9 @@ public class WorkerProcessorLauncher {
 
     }
 
-    protected LaunchLog doLaunch() {
+    protected LaunchLog doLaunch() throws ProcessorRunningException {
         BlockingQueue<NodeInfo> availableQueue = new ArrayBlockingQueue(allWorkers.size(), false, allWorkers);
+        boolean confirmed = false;
 
         while (resourceIsNotEnough(taskId) && availableQueue.size() != 0) {//已启动资源是否足够该任务执行
             NodeInfo worker = availableQueue.poll();
@@ -101,11 +105,21 @@ public class WorkerProcessorLauncher {
                 workerProcessorInvoker.invoke(taskId, taskStaticInfo.getMainClass(), ip, workerJarPath);
 
                 launchLog.incProcessorNum(ip);
-                availableQueue.offer(worker);
 
-                Thread.sleep(1 * 1000);//等待5秒,延缓下一个进程的启动
+                availableQueue.offer(worker);
             } catch (Exception e) {
                 logger.error("在{}上启动worker进程失败[taskId={}],异常信息为:{}", ip, taskId, ExceptionUtils.getStackTrace(e));
+                continue;
+            }
+
+            if (!confirmed) {
+                final ProcessorStartingHolder holder = ProcessorStartingHolder.get(taskId);
+                boolean r = holder.hold(30, TimeUnit.SECONDS);
+                if (r && holder.isRunningSuccess()) {
+                    confirmed = true;
+                } else {
+                    throw new ProcessorRunningException(ProcessorStartingHolder.get(taskId).getErrorMsg());
+                }
             }
 
         }
@@ -113,12 +127,12 @@ public class WorkerProcessorLauncher {
         return launchLog;
     }
 
-    protected void after() throws NoResourceException, WorkerProcessorLaunchException {
+    protected void after() throws NoResourceException, ProcessorLaunchException {
         if (noResource) {
             throw new NoResourceException();
         }
         if (launchLog.getTotalProcessorNum() == 0) {
-            throw new WorkerProcessorLaunchException("在所有worker上启动worker均失败");
+            throw new ProcessorLaunchException("在所有worker上启动worker均失败");
         } else {
             logger.info("所有可用资源分配完毕,总共为任务[taskId={}]分配{}个worker进程,分配情况:{}", taskId, launchLog.getTotalProcessorNum(), printDistribute(allWorkers, launchLog));
         }

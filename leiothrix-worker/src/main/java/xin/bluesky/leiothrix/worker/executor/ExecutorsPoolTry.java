@@ -1,4 +1,4 @@
-package xin.bluesky.leiothrix.worker.action;
+package xin.bluesky.leiothrix.worker.executor;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.slf4j.Logger;

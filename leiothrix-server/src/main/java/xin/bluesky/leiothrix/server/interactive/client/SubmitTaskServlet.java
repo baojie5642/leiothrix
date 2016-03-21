@@ -12,6 +12,7 @@ import xin.bluesky.leiothrix.common.util.StringUtils2;
 import xin.bluesky.leiothrix.model.bin.SubmitResponse;
 import xin.bluesky.leiothrix.model.task.TaskStatus;
 import xin.bluesky.leiothrix.server.action.WorkerProcessorLauncher;
+import xin.bluesky.leiothrix.server.action.exception.ProcessorRunningException;
 import xin.bluesky.leiothrix.server.action.exception.NoResourceException;
 import xin.bluesky.leiothrix.server.storage.TaskStorage;
 import xin.bluesky.leiothrix.server.tablemeta.DatabaseSchemaLoader;
@@ -61,14 +62,18 @@ public class SubmitTaskServlet extends HttpServlet {
 
             // 返回给客户端
             submitResponse = new SubmitResponse(taskId, SUCCESS);
+        } catch (ProcessorRunningException e) {
+            logger.error("任务在worker上启动失败,异常信息:{}", ExceptionUtils.getStackTrace(e));
+            submitResponse = new SubmitResponse(taskId, FAIL, "任务执行失败");
+            TaskStorage.setStatus(taskId, TaskStatus.ERROR);
         } catch (NoResourceException ex) {
             //对于当前没有资源可执行的任务,已经存储下来了,等待补偿机制发现空闲资源后再触发执行
             logger.warn("当前没有可用资源来执行该任务[taskId={}]", taskId);
             submitResponse = new SubmitResponse(taskId, SUCCESS, "任务提交成功,但是当前没有可用资源,请您耐心等待,勿重复提交");
             TaskStorage.setStatus(taskId, TaskStatus.UNALLOCATED);
-        } catch (Throwable e) {
-            logger.error("任务[taskId={}]提交失败,错误信息:{}", taskId, ExceptionUtils.getStackTrace(e));
-            submitResponse = new SubmitResponse(null, FAIL, e.getMessage());
+        } catch (Throwable t) {
+            logger.error("任务[taskId={}]提交失败,错误信息:{}", taskId, ExceptionUtils.getStackTrace(t));
+            submitResponse = new SubmitResponse(null, FAIL, t.getMessage());
             TaskStorage.setStatus(taskId, TaskStatus.ERROR);
             // 清理失败的任务
             clean(taskId);
