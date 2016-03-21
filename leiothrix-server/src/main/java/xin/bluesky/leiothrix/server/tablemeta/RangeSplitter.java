@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
+import xin.bluesky.leiothrix.common.jdbc.ParallelJdbcExecutor;
 import xin.bluesky.leiothrix.common.util.CollectionsUtils2;
 import xin.bluesky.leiothrix.common.util.StringUtils2;
 import xin.bluesky.leiothrix.model.db.DatabaseInfo;
@@ -13,6 +14,7 @@ import xin.bluesky.leiothrix.server.storage.RangeStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -52,12 +54,16 @@ public class RangeSplitter implements Runnable {
             List<String> rangeNameList = splitIdRange(minId, maxId);
             logger.info("查得表[tableName={}]的数据范围,minId={},maxId={}", tableMeta.getTableName(), minId, maxId);
 
+            ParallelJdbcExecutor parallel = new ParallelJdbcExecutor(jdbcTemplate);
             rangeNameList.forEach(rangeName -> {
-                String[] r = rangeName.split(Constant.RANGE_SEPARATOR);
-                int recordNum = jdbcTemplate.query(StringUtils2.append(
-                                "select count(1) recordNum from ", tableMeta.getTableName(),
-                                " where ", tableMeta.getPrimaryKey(), ">=", r[0], " and ", tableMeta.getPrimaryKey(), "<=", r[1]).toString()
-                ).get(0).getInteger("recordNum");
+                parallel.put(rangeName, getQueryRangeRecordNumSQL(rangeName));
+            });
+
+            Map<String, List<JSONObject>> numResult = parallel.queryForMap();
+            numResult.entrySet().forEach(entry -> {
+                String rangeName = entry.getKey();
+                JSONObject r = entry.getValue().get(0);
+                int recordNum = r.getInteger("recordNum");
                 RangeStorage.createRange(taskId, tableMeta.getTableName(), rangeName, recordNum);
             });
 
@@ -65,6 +71,13 @@ public class RangeSplitter implements Runnable {
         } finally {
             countDownLatch.countDown();
         }
+    }
+
+    private String getQueryRangeRecordNumSQL(String rangeName) {
+        String[] r = rangeName.split(Constant.RANGE_SEPARATOR);
+        return StringUtils2.append(
+                "select count(1) recordNum from ", tableMeta.getTableName(),
+                " where ", tableMeta.getPrimaryKey(), ">=", r[0], " and ", tableMeta.getPrimaryKey(), "<=", r[1]).toString();
     }
 
     private List<String> splitIdRange(long minId, long maxId) {

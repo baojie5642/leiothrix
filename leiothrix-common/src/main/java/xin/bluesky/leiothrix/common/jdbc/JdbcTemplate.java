@@ -1,6 +1,7 @@
 package xin.bluesky.leiothrix.common.jdbc;
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.tomcat.jdbc.pool.DataSource;
 import org.slf4j.Logger;
@@ -53,7 +54,7 @@ public class JdbcTemplate {
             }
 
         } catch (Exception e) {
-            logger.error("SQL:{}", sql);
+            logger.error("执行SQL出错,SQL:{},异常信息:{}", sql, ExceptionUtils.getStackTrace(e));
             throw new JdbcException(e);
         } finally {
             closeQuietly(rs, st, connection);
