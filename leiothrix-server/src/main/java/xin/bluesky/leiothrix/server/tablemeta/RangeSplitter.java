@@ -1,6 +1,7 @@
 package xin.bluesky.leiothrix.server.tablemeta;
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
@@ -11,6 +12,7 @@ import xin.bluesky.leiothrix.model.db.DatabaseInfo;
 import xin.bluesky.leiothrix.server.Constant;
 import xin.bluesky.leiothrix.server.conf.ServerConfigure;
 import xin.bluesky.leiothrix.server.storage.RangeStorage;
+import xin.bluesky.leiothrix.server.storage.TaskStorage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,16 +59,13 @@ public class RangeSplitter implements Runnable {
             ParallelJdbcExecutor parallel = new ParallelJdbcExecutor(jdbcTemplate);
             rangeNameList.forEach(rangeName -> {
                 parallel.put(rangeName, getQueryRangeRecordNumSQL(rangeName));
+                RangeStorage.createRange(taskId, tableMeta.getTableName(), rangeName);
             });
 
-            Map<String, List<JSONObject>> numResult = parallel.queryForMap();
-            numResult.entrySet().forEach(entry -> {
-                String rangeName = entry.getKey();
-                JSONObject r = entry.getValue().get(0);
-                int recordNum = r.getInteger("recordNum");
-                RangeStorage.createRange(taskId, tableMeta.getTableName(), rangeName, recordNum);
-            });
-
+            String storeNumber = TaskStorage.getTaskConfig(taskId).getDebug_storeRangeRecordNumber();
+            if (StringUtils.isNotBlank(storeNumber) && Boolean.parseBoolean(storeNumber)) {
+                setRangeRecordNumAsync(parallel);
+            }
             logger.debug("加载表[tableName={},primaryKey={}]分片信息:{}", tableMeta.getTableName(), tableMeta.getPrimaryKey(), CollectionsUtils2.toString(rangeNameList));
         } finally {
             countDownLatch.countDown();
@@ -78,6 +77,19 @@ public class RangeSplitter implements Runnable {
         return StringUtils2.append(
                 "select count(1) recordNum from ", tableMeta.getTableName(),
                 " where ", tableMeta.getPrimaryKey(), ">=", r[0], " and ", tableMeta.getPrimaryKey(), "<=", r[1]).toString();
+    }
+
+    private void setRangeRecordNumAsync(ParallelJdbcExecutor parallel) {
+        new Thread(() -> {
+            Map<String, List<JSONObject>> numResult = parallel.queryForMap();
+            numResult.entrySet().forEach(entry -> {
+                String rangeName = entry.getKey();
+                JSONObject r = entry.getValue().get(0);
+                int recordNum = r.getInteger("recordNum");
+                RangeStorage.setRangeRecordNum(taskId, tableMeta.getTableName(), rangeName, recordNum);
+            });
+        }, "range-recordnum-set").start();
+
     }
 
     private List<String> splitIdRange(long minId, long maxId) {

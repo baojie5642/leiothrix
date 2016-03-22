@@ -80,7 +80,7 @@ public class RangeStorage {
         partitionTask.setTaskId(taskId);
         partitionTask.setTableName(tableName);
         partitionTask.setPrimaryKey(primaryKey);
-        partitionTask.setPartitionRangeName(rangeName);
+        partitionTask.setRangeName(rangeName);
         partitionTask.setRowStartIndex(startIndex);
         partitionTask.setRowEndIndex(endIndex);
 
@@ -143,6 +143,11 @@ public class RangeStorage {
 
     private static String getRangeStatusPath(String taskId, String tableName, String rangeName) {
         return makePath(getRangePath(taskId, tableName, rangeName), NAME_STATUS);
+    }
+
+    public static void setRangeRecordNum(String taskId, String tableName, String rangeName, int recordNum) {
+        final String rangePath = getRangePath(taskId, tableName, rangeName);
+        createNodeAndSetData(rangePath, NAME_RANGE_RECORD_NUM, String.valueOf(recordNum));
     }
 
     public static void updatePageExecutionStatistics(String taskId, String tableName, String rangeName, ExecutionStatistics stat) {

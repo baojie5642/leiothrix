@@ -84,7 +84,7 @@ public class AcquireTaskHandler implements WorkerMessageHandler {
 
     private void flushSuccessPartitionTask(ChannelHandlerContext ctx, ServerMessage response, String taskId, PartitionTask partitionTask) {
         RangeStorage.setRangeStatus(taskId,
-                partitionTask.getTableName(), partitionTask.getPartitionRangeName(), RangeStatus.PROCESSING);
+                partitionTask.getTableName(), partitionTask.getRangeName(), RangeStatus.PROCESSING);
         response.setData(JSON.toJSONString(new PartitionTaskWrapper(STATUS_SUCCESS, partitionTask)));
         ctx.writeAndFlush(JSON.toJSONString(response) + "\r\n");
     }

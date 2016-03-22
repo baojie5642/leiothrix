@@ -15,18 +15,20 @@ import xin.bluesky.leiothrix.model.task.partition.ExecutionStatistics;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTask;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTaskProgress;
 import xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper;
-import xin.bluesky.leiothrix.worker.conf.Settings;
 import xin.bluesky.leiothrix.worker.WorkerProcessor;
 import xin.bluesky.leiothrix.worker.api.DatabasePageDataHandler;
-import xin.bluesky.leiothrix.worker.report.WorkerProgressReporter;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
+import xin.bluesky.leiothrix.worker.conf.Settings;
+import xin.bluesky.leiothrix.worker.report.WorkerProgressReporter;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.GIVE_BACK_PARTITION_TASK;
 import static xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper.STATUS_SUCCESS;
 import static xin.bluesky.leiothrix.model.task.partition.PartitionTaskWrapper.STATUS_WAIT_AND_TRY_LATER;
+import static xin.bluesky.leiothrix.worker.executor.Status.*;
 
 /**
  * @author 张轲
@@ -41,6 +43,8 @@ public class TaskExecutor implements Runnable {
 
     private CountDownLatch countDownLatch;
 
+    private volatile Status status = NOT_START;
+
     public TaskExecutor(WorkerProgressReporter progressReporter, CountDownLatch countDownLatch) {
         this.progressReporter = progressReporter;
         this.countDownLatch = countDownLatch;
@@ -48,6 +52,8 @@ public class TaskExecutor implements Runnable {
 
     @Override
     public void run() {
+        status = RUNNING;
+
         try {
             while (ableRunning()) {
                 PartitionTaskWrapper wrapper = TaskContainer.takePartitionTaskWrapper(ACQUIRE_TASK_TIMEOUT, SECONDS);
@@ -78,7 +84,7 @@ public class TaskExecutor implements Runnable {
     }
 
     private boolean ableRunning() {
-        return WorkerProcessor.getProcessor().isRunning();
+        return WorkerProcessor.getProcessor().isRunning() && status == RUNNING;
     }
 
     private void tryLater() throws InterruptedException {
@@ -96,11 +102,17 @@ public class TaskExecutor implements Runnable {
         execute(partitionTask, jdbcTemplate);
         watch.stop();
 
-        notifyServerFinished(partitionTask);
-
-        logger.info("本次任务片[table={},startIndex={},endIndex={}]执行结束,总共耗时{}毫秒",
-                partitionTask.getTableName(), partitionTask.getRowStartIndex(),
-                partitionTask.getRowEndIndex(), watch.getTime());
+        if (isReschedule()) {
+            giveBackPartitionTask(partitionTask);
+            logger.info("本次任务片[table={},rangeName={}]由于降压,重新调度到其他worker执行",
+                    partitionTask.getTableName(), partitionTask.getRangeName());
+        } else {
+            notifyServerFinished(partitionTask);
+            status = STOPPED;
+            logger.info("本次任务片[table={},startIndex={},endIndex={}]执行结束,总共耗时{}毫秒",
+                    partitionTask.getTableName(), partitionTask.getRowStartIndex(),
+                    partitionTask.getRowEndIndex(), watch.getTime());
+        }
     }
 
     private void execute(PartitionTask partitionTask, JdbcTemplate jdbcTemplate) {
@@ -113,7 +125,7 @@ public class TaskExecutor implements Runnable {
                 break;
             } else {
                 ExecutionStatistics statistics = executePage(partitionTask, jdbcTemplate, startIndex, endIndex);
-                progressReporter.reportProgress(new PartitionTaskProgress(partitionTask, partitionTask.getRowEndIndex(), statistics));
+                progressReporter.reportProgress(new PartitionTaskProgress(partitionTask, endIndex, statistics));
                 startIndex = endIndex + 1;
             }
         }
@@ -177,5 +189,22 @@ public class TaskExecutor implements Runnable {
     private void notifyServerFinished(PartitionTask partitionTask) {
         WorkerMessage message = new WorkerMessage(WorkerMessageType.FINISHED_TASK, JSON.toJSONString(partitionTask), Settings.getWorkerIp());
         ServerChannel.send(message);
+    }
+
+    private void giveBackPartitionTask(PartitionTask partitionTask) {
+        WorkerMessage message = new WorkerMessage(GIVE_BACK_PARTITION_TASK, JSON.toJSONString(partitionTask), Settings.getWorkerIp());
+        ServerChannel.send(message);
+    }
+
+    public void reschedule() {
+        status = RESCHEDULE;
+    }
+
+    public boolean isReschedule() {
+        return status == RESCHEDULE;
+    }
+
+    public boolean isFree() {
+        return status == STOPPED || status == RESCHEDULE || status == CANCELD;
     }
 }

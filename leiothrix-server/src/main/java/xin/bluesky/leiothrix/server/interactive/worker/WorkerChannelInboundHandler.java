@@ -7,14 +7,15 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import xin.bluesky.leiothrix.server.interactive.worker.msghandler.*;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
-import xin.bluesky.leiothrix.model.msg.WorkerMessageType;
+import xin.bluesky.leiothrix.server.interactive.worker.msghandler.*;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+
+import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.*;
 
 public class WorkerChannelInboundHandler extends ChannelInboundHandlerAdapter {
 
@@ -25,11 +26,12 @@ public class WorkerChannelInboundHandler extends ChannelInboundHandlerAdapter {
     private static Set<Channel> clientsSet = new HashSet();
 
     static {
-        map.put(WorkerMessageType.ACQUIRE_TASK, new AcquireTaskHandler());
-        map.put(WorkerMessageType.FINISHED_TASK, new FinishedPartitionTaskHandler());
-        map.put(WorkerMessageType.EXECUTE_PROGRESS_REPORT, new WorkerProgressReportHandler());
-        map.put(WorkerMessageType.PROCESSOR_ANNOUNCE, new ProcessorAnnounceHandler());
-        map.put(WorkerMessageType.PING, new PingHandler());
+        map.put(ACQUIRE_TASK, new AcquireTaskHandler());
+        map.put(FINISHED_TASK, new FinishedPartitionTaskHandler());
+        map.put(EXECUTE_PROGRESS_REPORT, new WorkerProgressReportHandler());
+        map.put(PROCESSOR_ANNOUNCE, new ProcessorAnnounceHandler());
+        map.put(GIVE_BACK_PARTITION_TASK, new GiveBackPartitionTaskHandler());
+        map.put(PING, new PingHandler());
     }
 
     public WorkerChannelInboundHandler() {

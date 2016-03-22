@@ -38,8 +38,8 @@ public class TableOneByOnePartitionAllocatorTest extends StorageContainerDepende
         try {
             List<PartitionTask> taskList1 = allocator.findRange(taskId);
             assertThat(taskList1.size(), is(2));
-            assertThat(taskList1.get(0).getPartitionRangeName(), is("0-100"));
-            assertThat(taskList1.get(1).getPartitionRangeName(), is("101-200"));
+            assertThat(taskList1.get(0).getRangeName(), is("0-100"));
+            assertThat(taskList1.get(1).getRangeName(), is("101-200"));
             successCount++;
 
             // 在这个地方,应该是在table-1的两个range都未处理完时,再来找第三个,即到了table-2,应该抛出异常

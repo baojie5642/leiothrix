@@ -27,5 +27,6 @@
       "name": "t_user_login_history"
     }
   ],
-  "rangeAllocator": "table_sequence"
+  "rangeAllocator": "table_sequence",
+  "debug_storeRangeRecordNumber": "true"
 }

@@ -7,6 +7,9 @@ import xin.bluesky.leiothrix.worker.conf.Settings;
 
 import java.lang.management.ManagementFactory;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
@@ -21,6 +24,8 @@ public class ExecutorsPool {
     private static final Logger logger = LoggerFactory.getLogger(ExecutorsPool.class);
 
     private ThreadPoolExecutor executors;
+
+    private List<TaskExecutor> reference = new ArrayList();
 
     public ExecutorsPool() {
         int executorNumber = calExecutorsNumbers();
@@ -50,11 +55,34 @@ public class ExecutorsPool {
     }
 
     public void submit(TaskExecutor taskExecutor) {
+        reference.add(taskExecutor);
         executors.submit(taskExecutor);
     }
 
     public int getPoolSize() {
         return executors.getCorePoolSize();
+    }
+
+    public int getRemainingExecutorSize() {
+        for (Iterator<TaskExecutor> iterator = reference.iterator(); iterator.hasNext(); ) {
+            TaskExecutor te = iterator.next();
+            if (te.isFree()) {
+                iterator.remove();
+            }
+        }
+        return reference.size();
+    }
+
+    public void rescheduleExecutor(int num) {
+        if (num > reference.size()) {
+            throw new IllegalArgumentException("stop数量不能超过任务的执行线程数");
+        }
+
+        for (int i = 0; i < num; i++) {
+            TaskExecutor te = reference.get(0);
+            te.reschedule();
+            reference.remove(te);
+        }
     }
 
     public void shutdown() {

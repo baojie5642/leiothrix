@@ -30,7 +30,7 @@ public class TableOneByOnePartitionAllocator extends AbstractPartitionAllocator 
     protected List<String> getAllTables(String taskId) {
         // 从config中取能保证表的有序,即按照从前往后的配置顺序
         TaskConfig taskConfig = TaskStorage.getTaskConfig(taskId);
-        List<String> tableList = taskConfig.getTalbeNameList();
+        List<String> tableList = taskConfig.getTableNameList();
         // 如果application没有配table列表,那就只能从zookeeper中取了,这往往意味这application配置不正确
         if (CollectionsUtils2.isEmpty(tableList)) {
             logger.warn("application没有传table列表,这样应该是不正确的!");

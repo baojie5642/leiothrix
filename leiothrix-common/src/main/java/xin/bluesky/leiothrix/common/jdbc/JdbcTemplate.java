@@ -209,7 +209,7 @@ public class JdbcTemplate {
     }
 
     private long executeBatchUpdate(String sql, List<Object[]> params) {
-        logger.debug("执行插入SQL:{}", sql);
+        logger.trace("执行插入SQL:{}", sql);
         Connection connection = null;
         PreparedStatement ps = null;
 

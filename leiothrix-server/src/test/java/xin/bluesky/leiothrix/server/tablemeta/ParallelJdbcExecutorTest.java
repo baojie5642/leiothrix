@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
+import xin.bluesky.leiothrix.common.jdbc.ParallelJdbcExecutor;
 
 import java.util.List;
 import java.util.Map;

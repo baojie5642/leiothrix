@@ -51,7 +51,7 @@ public class WorkerProgressReporter implements Runnable {
                 WorkerMessage message = new WorkerMessage(EXECUTE_PROGRESS_REPORT, toJSONString(progress), localIp);
                 ServerChannel.send(message);
                 logger.debug("worker:{}执行任务片[taskId={},tableName={},rangeName={}],当前执行到{}",
-                        localIp, progress.getPartitionTask().getTaskId(), progress.getPartitionTask().getTableName(), progress.getPartitionTask().getPartitionRangeName(), progress.getEndIndex());
+                        localIp, progress.getPartitionTask().getTaskId(), progress.getPartitionTask().getTableName(), progress.getPartitionTask().getRangeName(), progress.getEndIndex());
             } catch (InterruptedException e) {
             }
         }

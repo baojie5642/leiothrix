@@ -34,7 +34,7 @@ public class RandomTablePartitionAllocatorTest extends StorageContainerDependenc
             for (int i = 0; i < totalRangeNumber; i++) {
                 List<PartitionTask> list = allocator.findRange(taskId);
                 list.forEach(partitionTask -> {
-                    String key = partitionTask.getTableName() + ":" + partitionTask.getPartitionRangeName();
+                    String key = partitionTask.getTableName() + ":" + partitionTask.getRangeName();
                     if (map.containsKey(key)) {
                         map.put(key, map.get(key) + 1);
                     } else {

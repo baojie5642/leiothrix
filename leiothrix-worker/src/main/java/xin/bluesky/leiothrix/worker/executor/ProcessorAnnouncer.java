@@ -3,12 +3,11 @@ package xin.bluesky.leiothrix.worker.executor;
 import com.alibaba.fastjson.JSON;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import xin.bluesky.leiothrix.common.util.PhysicalUtils;
 import xin.bluesky.leiothrix.model.msg.WorkerMessage;
 import xin.bluesky.leiothrix.model.stat.ProcessorInfo;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
 import xin.bluesky.leiothrix.worker.conf.Settings;
-
-import java.lang.management.ManagementFactory;
 
 import static xin.bluesky.leiothrix.model.msg.WorkerMessageType.PROCESSOR_ANNOUNCE;
 
@@ -75,10 +74,7 @@ public class ProcessorAnnouncer {
     }
 
     protected static ProcessorInfo getStaticProcessInfo() {
-        String processorId = ManagementFactory.getRuntimeMXBean().getName();
-        if (processorId.indexOf("@") > 0) {
-            processorId = processorId.substring(0, processorId.indexOf("@"));
-        }
+        String processorId = PhysicalUtils.getPid();
         ProcessorInfo info = new ProcessorInfo(Settings.getTaskId(), Settings.getWorkerIp(), processorId);
         return info;
     }

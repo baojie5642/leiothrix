@@ -25,7 +25,7 @@ public class WorkerProgressReportHandler implements WorkerMessageHandler {
         PartitionTask partitionTask = progress.getPartitionTask();
         String taskId = partitionTask.getTaskId();
         String tableName = partitionTask.getTableName();
-        String rangeName = partitionTask.getPartitionRangeName();
+        String rangeName = partitionTask.getRangeName();
 
         RangeStorage.setNameRangeStartIndex(taskId, tableName, rangeName, progress.getEndIndex() + 1);
         // 目的是刷新zookeeper节点的mtime,TimeoutPartitionTaskChecker会检查节点是否长期未被update,从而判定worker已经die,需要重新分配给其他worker

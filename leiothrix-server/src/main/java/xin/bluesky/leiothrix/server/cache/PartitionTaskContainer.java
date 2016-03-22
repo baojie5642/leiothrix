@@ -51,6 +51,10 @@ public class PartitionTaskContainer {
         });
     }
 
+    public void offer(PartitionTask task) {
+        queue.offer(task);
+    }
+
     public int size() {
         return queue.size();
     }
@@ -72,8 +76,8 @@ public class PartitionTaskContainer {
                 for (Iterator<PartitionTask> iterator = container.queue.iterator(); iterator.hasNext(); ) {
                     // 刷新节点更新时间,表明当前server仍然掌握着该range
                     PartitionTask pt = iterator.next();
-                    RangeStorage.refreshRangeLastUpdateTime(pt.getTaskId(), pt.getTableName(), pt.getPartitionRangeName());
-                    logger.debug("刷新range[taskId={},tableName={},rangeName={}]的更新时间", pt.getTaskId(), pt.getTableName(), pt.getPartitionRangeName());
+                    RangeStorage.refreshRangeLastUpdateTime(pt.getTaskId(), pt.getTableName(), pt.getRangeName());
+                    logger.debug("刷新range[taskId={},tableName={},rangeName={}]的更新时间", pt.getTaskId(), pt.getTableName(), pt.getRangeName());
                 }
             });
         }

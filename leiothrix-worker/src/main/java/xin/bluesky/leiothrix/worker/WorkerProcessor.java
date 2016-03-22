@@ -5,6 +5,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import xin.bluesky.leiothrix.common.jdbc.JdbcTemplate;
+import xin.bluesky.leiothrix.worker.background.ResourceMonitor;
 import xin.bluesky.leiothrix.worker.background.ShutdownHook;
 import xin.bluesky.leiothrix.worker.client.ServerChannel;
 import xin.bluesky.leiothrix.worker.conf.SettingInit;
@@ -34,6 +35,8 @@ public class WorkerProcessor {
 
     private WorkerProgressReporter progressReporter;
 
+    private ResourceMonitor resourceMonitor;
+
     private volatile Status status;
 
     private ReentrantLock lock = new ReentrantLock();
@@ -58,23 +61,21 @@ public class WorkerProcessor {
         }
 
         this.configuration = configuration;
-
-        init();
-    }
-
-    private void init() {
-        SettingInit.init(configuration);
-
-        this.executorsPool = new ExecutorsPool();
-
-        this.countDownLatch = new CountDownLatch(executorsPool.getPoolSize());
-
         this.progressReporter = new WorkerProgressReporter();
-
+        this.resourceMonitor = new ResourceMonitor();
         this.status = NOT_STARTED;
     }
 
+    private void beforeStart() {
+        SettingInit.init(configuration);
+
+        // 线程池的数量要依赖于server传递过来的参数,所以必须在SettingInit.init之后才能调用
+        this.executorsPool = new ExecutorsPool();
+        this.countDownLatch = new CountDownLatch(executorsPool.getPoolSize());
+    }
+
     public void start() {
+        beforeStart();
 
         try {
             lock.lock();
@@ -94,6 +95,8 @@ public class WorkerProcessor {
             submitExecutor();
 
             progressReporter.start();
+
+            resourceMonitor.start();
 
             ProcessorAnnouncer.announceStartupSuccess();
 
@@ -121,6 +124,18 @@ public class WorkerProcessor {
         return status == RUNNING;
     }
 
+    public boolean reducePressure() {
+        int size = executorsPool.getRemainingExecutorSize();
+        if (size == 1) {
+            logger.info("当前只有1个工作线程在执行,不再降压");
+            return false;
+        }
+        int reduceSize = size / 5 == 0 ? 1 : size / 5;
+        executorsPool.rescheduleExecutor(reduceSize);
+        logger.info("本次停止{}个工作线程以降低压力,降压后有{}个工作线程", reduceSize, size - reduceSize);
+        return true;
+    }
+
     public void shutdown() {
         lock.lock();
         if (!isRunning()) {
@@ -141,19 +156,22 @@ public class WorkerProcessor {
 
             JdbcTemplate.destroy();
 
-            ServerChannel.shutdown();
-
             Thread.sleep(3 * 1000);
 
             logger.info("worker进程成功退出");
 
             ProcessorAnnouncer.announceExit();
+
         } catch (Throwable e) {
             String errorMsg = StringEscapeUtils.escapeJava(ExceptionUtils.getStackTrace(e));
             ProcessorAnnouncer.announceExit(errorMsg);
+        } finally {
+            try {
+                ServerChannel.shutdown();
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
         }
-
-
     }
 
     public Status getStatus() {

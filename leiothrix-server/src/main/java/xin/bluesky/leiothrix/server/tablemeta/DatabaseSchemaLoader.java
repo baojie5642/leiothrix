@@ -38,7 +38,7 @@ public abstract class DatabaseSchemaLoader {
             throw new ConfigureException(String.format("不支持%s数据库", anyDatabaseInfo.getDialect()));
         }
 
-        loader.doLoad(taskId, anyDatabaseInfo, taskStaticInfo.getTaskConfig().getTalbeNameList());
+        loader.doLoad(taskId, anyDatabaseInfo, taskStaticInfo.getTaskConfig().getTableNameList());
         logger.info("加载数据库Schema完成");
     }
 

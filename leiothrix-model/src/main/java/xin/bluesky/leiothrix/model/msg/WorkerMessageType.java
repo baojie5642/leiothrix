@@ -14,7 +14,9 @@ public class WorkerMessageType implements Serializable {
 
     public static final String EXECUTE_PROGRESS_REPORT = "workerProgressReport";
 
-    public static final String PROCESSOR_ANNOUNCE = "workerNumberIncr";
+    public static final String PROCESSOR_ANNOUNCE = "processorAnnounce";
+
+    public static final String GIVE_BACK_PARTITION_TASK = "giveBackPartitionTask";
 
     public static final String PING = "ping";
 }

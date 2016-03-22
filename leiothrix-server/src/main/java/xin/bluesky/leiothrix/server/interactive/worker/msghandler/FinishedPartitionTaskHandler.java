@@ -24,7 +24,7 @@ public class FinishedPartitionTaskHandler implements WorkerMessageHandler {
         PartitionTask partitionTask = JSON.parseObject(message.getData(), PartitionTask.class);
 
         String taskId = partitionTask.getTaskId();
-        String rangeName = partitionTask.getPartitionRangeName();
+        String rangeName = partitionTask.getRangeName();
         String tableName = partitionTask.getTableName();
 
         RangeStorage.setRangeStatus(taskId, tableName, rangeName, FINISHED);

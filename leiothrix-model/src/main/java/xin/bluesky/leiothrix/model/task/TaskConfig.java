@@ -20,6 +20,8 @@ public class TaskConfig {
 
     private String rangeAllocator;
 
+    private String debug_storeRangeRecordNumber;
+
     public TaskConfig() {
     }
 
@@ -35,7 +37,7 @@ public class TaskConfig {
         return tableList;
     }
 
-    public List<String> getTalbeNameList() {
+    public List<String> getTableNameList() {
         if (tableList == null) {
             return new ArrayList();
         }
@@ -56,6 +58,14 @@ public class TaskConfig {
 
     public void setRangeAllocator(String rangeAllocator) {
         this.rangeAllocator = rangeAllocator;
+    }
+
+    public String getDebug_storeRangeRecordNumber() {
+        return debug_storeRangeRecordNumber;
+    }
+
+    public void setDebug_storeRangeRecordNumber(String debug_storeRangeRecordNumber) {
+        this.debug_storeRangeRecordNumber = debug_storeRangeRecordNumber;
     }
 
     @Override

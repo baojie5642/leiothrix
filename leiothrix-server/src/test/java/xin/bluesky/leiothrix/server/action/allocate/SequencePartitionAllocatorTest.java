@@ -34,10 +34,10 @@ public class SequencePartitionAllocatorTest extends StorageContainerDependency {
         // then
         Set<String> rangesSet = new HashSet();
         taskList1.forEach(t -> {
-            rangesSet.add(t.getPartitionRangeName());
+            rangesSet.add(t.getRangeName());
         });
         taskList2.forEach(t->{
-            rangesSet.add(t.getPartitionRangeName());
+            rangesSet.add(t.getRangeName());
         });
 
         // 确保不会重新获取任务,同时也不会少获取任务

@@ -18,7 +18,7 @@ public class PartitionTask {
 
     private String primaryKey;
 
-    private String partitionRangeName;
+    private String rangeName;
 
     private long rowStartIndex;
 
@@ -76,12 +76,12 @@ public class PartitionTask {
         this.taskId = taskId;
     }
 
-    public String getPartitionRangeName() {
-        return partitionRangeName;
+    public String getRangeName() {
+        return rangeName;
     }
 
-    public void setPartitionRangeName(String partitionRangeName) {
-        this.partitionRangeName = partitionRangeName;
+    public void setRangeName(String rangeName) {
+        this.rangeName = rangeName;
     }
 
     public String getColumnNames() {
@@ -109,7 +109,7 @@ public class PartitionTask {
         return new ToStringBuilder(this, ToStringStyle.JSON_STYLE)
                 .append("taskId", taskId)
                 .append("tableName", tableName)
-                .append("rangeName", partitionRangeName)
+                .append("rangeName", rangeName)
                 .append("startIndex", getRowStartIndex())
                 .append("endIndex", getRowEndIndex())
                 .append("columns", getColumnNames())
