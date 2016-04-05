@@ -4,6 +4,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 import xin.bluesky.leiothrix.common.net.NetUtils;
 
+import java.util.UUID;
+
 import static org.hamcrest.core.Is.is;
 import static org.hamcrest.core.IsNull.notNullValue;
 import static org.junit.Assert.assertThat;
@@ -19,6 +21,13 @@ public class NetUtilsTest {
     @Test
     public void should_get_local_ip() throws Exception {
         assertThat(NetUtils.getLocalIp(), notNullValue());
+    }
+
+    @Test
+    public void test(){
+        UUID uuid=UUID.randomUUID();
+        System.out.println(uuid.toString());
+        System.out.println(uuid.getLeastSignificantBits());
     }
 
     /**

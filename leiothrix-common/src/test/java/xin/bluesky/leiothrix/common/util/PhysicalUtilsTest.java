@@ -1,5 +1,6 @@
 package xin.bluesky.leiothrix.common.util;
 
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import static java.math.BigDecimal.ROUND_HALF_DOWN;
 /**
  * @author 张轲
  */
+@Ignore(value = "取决于回收策略,并且执行时间较长")
 public class PhysicalUtilsTest {
 
     private static final Logger logger = LoggerFactory.getLogger(PhysicalUtilsTest.class);
