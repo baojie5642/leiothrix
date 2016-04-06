@@ -23,7 +23,6 @@ import static xin.bluesky.leiothrix.server.Constant.SYS_PROP_WORKER_COMPENSATE_E
  * 1. 最老任务优先 {@link CompensateSingleTaskStrategy}
  * </li>
  * </ul>
- * </p>
  *
  * @author 张轲
  */

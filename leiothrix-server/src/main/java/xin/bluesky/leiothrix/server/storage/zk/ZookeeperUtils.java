@@ -241,7 +241,8 @@ public class ZookeeperUtils {
     /**
      * 该方法不是线程安全的
      *
-     * @param nodePath
+     * @param nodePath  node path
+     * @param increment the value increased
      */
     public static void addIntValue(String nodePath, Integer increment) {
         if (!checkExists(nodePath)) {
@@ -256,7 +257,8 @@ public class ZookeeperUtils {
     /**
      * 该方法不是线程安全的
      *
-     * @param nodePath
+     * @param nodePath  node path
+     * @param increment the value increased
      */
     public static void addLongValue(String nodePath, Long increment) {
         if (!checkExists(nodePath)) {
@@ -271,8 +273,8 @@ public class ZookeeperUtils {
     /**
      * 该方法不是线程安全的
      *
-     * @param nodePath
-     * @param data
+     * @param nodePath node path
+     * @param data     data appended to the node's content
      */
     public static void appendValue(String nodePath, String data) {
         if (!checkExists(nodePath)) {

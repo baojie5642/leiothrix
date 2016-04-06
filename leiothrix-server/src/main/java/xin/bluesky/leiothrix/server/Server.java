@@ -77,7 +77,7 @@ public class Server {
     /**
      * server是无中心的集群模式
      *
-     * @throws Exception
+     * @throws Exception if some bad thing happen
      */
     public void start() throws Exception {
 

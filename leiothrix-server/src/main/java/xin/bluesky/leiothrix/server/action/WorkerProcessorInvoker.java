@@ -114,8 +114,8 @@ public class WorkerProcessorInvoker {
     /**
      * 获得worker物理机的自身内存,所允许启动的进程数量上限
      *
-     * @param worker
-     * @return
+     * @param worker worker
+     * @return the max processor num of this worker calculated by physical memory
      */
     public int getPhysicalUpperLimitProcessNum(NodeInfo worker) {
         NodePhysicalInfo physicalInfo = worker.getPhysicalInfo();
@@ -130,8 +130,8 @@ public class WorkerProcessorInvoker {
     /**
      * 以内存来计算可分配的worker进程数量.
      *
-     * @param worker
-     * @return
+     * @param worker worker
+     * @return the available processor number can be launched
      */
     public int calAvailableProcessNum(NodeInfo worker) {
         // 已启动的进程数量

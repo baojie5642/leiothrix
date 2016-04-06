@@ -28,7 +28,7 @@ public class RangeScanner {
     /**
      * 扫描某个表的range,以找到尚未被分配的range.如果没有找到,则返回null.在扫描过程中,如果所有range都已结束,则更新表状态为结束
      *
-     * @return
+     * @return {@link RangeScanResult} object
      */
     public RangeScanResult scan() {
         RangeScanResult result = new RangeScanResult();

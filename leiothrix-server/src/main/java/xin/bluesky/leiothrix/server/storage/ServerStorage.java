@@ -19,7 +19,7 @@ public class ServerStorage {
     /**
      * 在zk上给server注册EPHEMERAL类型的节点.如果已经存在,则先删后建.
      *
-     * @param ip
+     * @param ip server ip
      */
     public static void registerServer(String ip) {
         String path = makePath(SERVER, ip);

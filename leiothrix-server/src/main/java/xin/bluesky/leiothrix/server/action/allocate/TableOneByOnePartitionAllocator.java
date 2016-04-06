@@ -49,11 +49,11 @@ public class TableOneByOnePartitionAllocator extends AbstractPartitionAllocator 
      * 考虑tableStatus为WAIT_FOR_REALLOCATE的情况下,此时该表下可能部分range是已结束,部分range是处理中,
      * 但一定有range是未分配的,因为在判定range处理超时的时候才会给table置WAIT_FOR_REALLOCATE状态,同时重置超时range为未分配状态.
      *
-     * @param taskId
-     * @param tableNameList
-     * @return
-     * @throws NoTaskException
-     * @throws WaitAndTryLaterException
+     * @param taskId        taskId
+     * @param tableNameList table name list
+     * @return partition task list
+     * @throws NoTaskException          if no task can be found
+     * @throws WaitAndTryLaterException if client need wait for current table finished
      */
     @Override
     public List<PartitionTask> findRange(String taskId, List<String> tableNameList) throws NoTaskException, WaitAndTryLaterException {

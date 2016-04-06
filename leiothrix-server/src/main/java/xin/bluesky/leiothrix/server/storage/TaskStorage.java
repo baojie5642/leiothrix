@@ -50,7 +50,7 @@ public class TaskStorage {
     /**
      * 创建一个空任务,只包含taskId节点和状态节点
      *
-     * @param taskId
+     * @param taskId taskId
      */
     public static void createEmptyTask(String taskId) {
         createEmptyTask(taskId, TaskStatus.UNALLOCATED);
@@ -64,8 +64,8 @@ public class TaskStorage {
     /**
      * 获得Task的config信息
      *
-     * @param taskId
-     * @return
+     * @param taskId taskId
+     * @return {@link TaskConfig} object
      */
     public static TaskConfig getTaskConfig(String taskId) {
         return getTaskStaticInfo(taskId).getTaskConfig();
@@ -74,7 +74,7 @@ public class TaskStorage {
     /**
      * 获得所有Task
      *
-     * @return
+     * @return all tasks
      */
     public static List<String> getAllTasks() {
         return getChildrenWithSimplePath(TASKS);
@@ -83,7 +83,7 @@ public class TaskStorage {
     /**
      * 获得所有当前正在处理中的任务
      *
-     * @return
+     * @return all processing tasks
      */
     public static List<String> getAllProcessingTasks() {
         List<String> allTasks = getAllTasks();
@@ -102,7 +102,7 @@ public class TaskStorage {
     /**
      * 获得所有已结束的任务
      *
-     * @return
+     * @return all finished tasks
      */
     public static List<String> getAllFinishedTasks() {
         List<String> allTasks = getAllTasks();
@@ -169,8 +169,8 @@ public class TaskStorage {
     /**
      * 判断该task是否存在
      *
-     * @param taskId
-     * @return
+     * @param taskId taskId
+     * @return true if the task exist,else return false
      */
     public static boolean taskExist(String taskId) {
         return checkExists(getTaskPath(taskId));
@@ -179,8 +179,8 @@ public class TaskStorage {
     /**
      * 判断该task是否不存在
      *
-     * @param taskId
-     * @return
+     * @param taskId taskId
+     * @return true if the task not exist,else return false
      */
     public static boolean taskNotExist(String taskId) {
         return !taskExist(taskId);
@@ -222,7 +222,7 @@ public class TaskStorage {
     /**
      * 删除Task
      *
-     * @param taskId
+     * @param taskId taskId
      */
     public static void delete(String taskId) {
         ZookeeperUtils.delete(getTaskPath(taskId));
@@ -231,8 +231,8 @@ public class TaskStorage {
     /**
      * 获得Task的当前状态
      *
-     * @param taskId
-     * @return
+     * @param taskId taskId
+     * @return task status
      */
     public static TaskStatus getStatus(String taskId) {
         String statusPath = getTaskStatusPath(taskId);
@@ -242,8 +242,8 @@ public class TaskStorage {
     /**
      * 获得Task的zk路径
      *
-     * @param taskId
-     * @return
+     * @param taskId taskId
+     * @return the path of this task
      */
     private static String getTaskPath(String taskId) {
         return makePath(TASKS, taskId);
@@ -256,8 +256,8 @@ public class TaskStorage {
     /**
      * 设置运行该Task对应的jar路径
      *
-     * @param taskId
-     * @param jarPath
+     * @param taskId  taskId
+     * @param jarPath the jar path of this task
      */
     public static void setJarPath(String taskId, String jarPath) {
         ZookeeperUtils.createNodeAndSetData(getTaskPath(taskId), NAME_JAR, jarPath);
@@ -266,8 +266,8 @@ public class TaskStorage {
     /**
      * 设置该Task对应的config信息
      *
-     * @param taskId
-     * @param config
+     * @param taskId taskId
+     * @param config the config body
      */
     public static void setConfig(String taskId, String config) {
         ZookeeperUtils.createNodeAndSetData(getTaskPath(taskId), NAME_CONFIG_FILE, config);
@@ -276,13 +276,19 @@ public class TaskStorage {
     /**
      * 设置运行该Task的main函数
      *
-     * @param taskId
-     * @param mainClass
+     * @param taskId    taskId
+     * @param mainClass the main class absolute name
      */
     public static void setMainClass(String taskId, String mainClass) {
         ZookeeperUtils.createNodeAndSetData(getTaskPath(taskId), NAME_MAIN_CLASS, mainClass);
     }
 
+    /**
+     * 设置任务的状态
+     *
+     * @param taskId taskId
+     * @param status task status
+     */
     public static void setStatus(String taskId, TaskStatus status) {
         ZookeeperUtils.setData(makePath(getTaskPath(taskId), NAME_STATUS), status.name());
     }
@@ -290,7 +296,7 @@ public class TaskStorage {
     /**
      * 取消任务.
      *
-     * @param taskId
+     * @param taskId taskId
      */
     public static void cancel(String taskId) {
         setStatus(taskId, TaskStatus.CANCELED);
@@ -299,8 +305,8 @@ public class TaskStorage {
     /**
      * 得到该任务的当前运行资源是否足够的值
      *
-     * @param taskId
-     * @return
+     * @param taskId taskId
+     * @return true if the resource allocated for this task is enough,else return false
      */
     public static boolean isResourceEnough(String taskId) {
         String nodePath = getResourceEnoughPath(taskId);
@@ -318,8 +324,8 @@ public class TaskStorage {
     /**
      * 设置该任务的当前运行资源是否足够
      *
-     * @param taskId
-     * @param b
+     * @param taskId taskId
+     * @param b      enough or not
      */
     public static void setResourceEnough(String taskId, boolean b) {
         String nodePath = getResourceEnoughPath(taskId);
@@ -329,10 +335,10 @@ public class TaskStorage {
     /**
      * 给task记录处理其的worker进程及相关信息
      *
-     * @param taskId
-     * @param workerIp
-     * @param processorId
-     * @param time
+     * @param taskId      taskId
+     * @param workerIp    worker ip
+     * @param processorId processor id
+     * @param time        add time
      */
     public static void addWorkerProcessor(String taskId, String workerIp, String processorId, Date time) {
         String nodePath = getWorkerProcessorPath(taskId, workerIp, processorId);
@@ -342,10 +348,10 @@ public class TaskStorage {
     /**
      * 给task记录处理其的worker进程的结束记录
      *
-     * @param taskId
-     * @param workerIp
-     * @param processorId
-     * @param time
+     * @param taskId      taskId
+     * @param workerIp    worker ip
+     * @param processorId processor id
+     * @param time        finished time
      */
     public static void finishedWorkerProcessor(String taskId, String workerIp, String processorId, Date time) {
         String nodePath = makePath(getWorkerProcessorPath(taskId, workerIp, processorId), NAME_WORKERS_PROCESSOR_FINISHED_TIME);
@@ -381,6 +387,8 @@ public class TaskStorage {
 
     /**
      * 记录任务的启动时间
+     *
+     * @param taskId taskId
      */
     public static void logTaskStartTime(String taskId) {
         String nodePath = makePath(getTaskPath(taskId), NAME_STATISTICS, NAME_STATISTICS_TASK_START_TIME);
@@ -390,7 +398,7 @@ public class TaskStorage {
     /**
      * 记录任务的结束时间
      *
-     * @param taskId
+     * @param taskId taskId
      */
     public static void logTaskFinishedTime(String taskId) {
         String nodePath = makePath(getTaskPath(taskId), NAME_STATISTICS, NAME_STATISTICS_TASK_FINISHED_TIME);

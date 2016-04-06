@@ -1,10 +1,10 @@
 package xin.bluesky.leiothrix.server.action;
 
+import xin.bluesky.leiothrix.model.task.TaskConfig;
 import xin.bluesky.leiothrix.server.action.allocate.RandomTablePartitionAllocator;
 import xin.bluesky.leiothrix.server.action.allocate.SequencePartitionAllocator;
 import xin.bluesky.leiothrix.server.action.allocate.TableOneByOnePartitionAllocator;
 import xin.bluesky.leiothrix.server.storage.TaskStorage;
-import xin.bluesky.leiothrix.model.task.TaskConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -31,8 +31,8 @@ public class PartitionAllocatorFactory {
     /**
      * 根据task的配置,来获得对应的{@link PartitionAllocator}的实现类
      *
-     * @param taskId
-     * @return
+     * @param taskId taskId
+     * @return {@link PartitionAllocator} object
      */
     public static PartitionAllocator get(String taskId) {
         TaskConfig taskConfig = TaskStorage.getTaskConfig(taskId);
